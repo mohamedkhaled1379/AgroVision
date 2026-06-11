@@ -3,7 +3,7 @@ werkzeug
 numpy
 pandas
 joblib
-opencv-python
+opencv-python-headless
 tensorflow
 torch
 torchvision
