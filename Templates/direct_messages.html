@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}" dir="{{ 'rtl' if is_rtl else 'ltr' }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ t('nav_messages') }} — {{ t('brand') }}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+{% if is_rtl %}
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<style>body{font-family:'Noto Sans Arabic','DM Sans',sans-serif!important;}</style>
+{% endif %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+:root{
+    --border:rgba(74,222,128,0.16);
+    --accent:#4ade80;
+    --accent2:#22d3ee;
+    --text:#e5e7eb;
+    --muted:#94a3b8;
+}
+body{ color:var(--text); font-family:'DM Sans',sans-serif; }
+.navbar{ background:rgba(8,15,10,0.85); backdrop-filter:blur(14px); border-bottom:1px solid var(--border); }
+.navbar-brand{ color:var(--accent)!important; font-weight:800; font-family:'Syne',sans-serif; }
+.nav-link{ color:var(--muted)!important; }
+.nav-link:hover,.nav-link.active{ color:var(--accent)!important; }
+.page{ max-width:1280px; margin:0 auto; padding:20px 14px 32px; }
+.title{
+    font-family:'Syne',sans-serif; font-weight:800; letter-spacing:-0.02em;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+}
+.shell{
+    display:grid;
+    grid-template-columns:320px 1fr;
+    gap:14px;
+    min-height:72vh;
+}
+.panel{
+    background:rgba(13,26,16,0.88);
+    border:1px solid var(--border);
+    border-radius:16px;
+    box-shadow:0 16px 40px rgba(0,0,0,0.35);
+}
+.left{
+    padding:14px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+.friends-list{
+    overflow:auto;
+    max-height:280px;
+    display:grid;
+    gap:8px;
+}
+.friend-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    padding:8px 10px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.08);
+    background:rgba(255,255,255,0.03);
+    color:#fff;
+    text-decoration:none;
+}
+.friend-item.active{ border-color:rgba(74,222,128,0.4); background:rgba(74,222,128,0.12); }
+.friend-left{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+.friend-avatar{
+    width:26px;
+    height:26px;
+    border-radius:50%;
+    object-fit:cover;
+    border:1px solid rgba(255,255,255,0.15);
+}
+.form-control,.form-select{ background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); color:#fff; }
+.btn-main{ background:linear-gradient(135deg,#4ade80,#22d3ee); border:none; color:#04130a; font-weight:700; }
+.meta{ color:var(--muted); font-size:12px; }
+.req-box{ background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:8px 10px; }
+
+.chat{
+    display:grid;
+    grid-template-rows:auto 1fr auto;
+    min-height:72vh;
+}
+.chat-head{
+    padding:14px 16px;
+    border-bottom:1px solid rgba(255,255,255,0.08);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+.messages{
+    padding:14px;
+    overflow:auto;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+.bubble-wrap{ display:flex; }
+.bubble-wrap.me{ justify-content:flex-end; }
+.bubble{
+    max-width:70%;
+    border-radius:12px;
+    padding:8px 10px;
+    border:1px solid rgba(255,255,255,0.1);
+    background:rgba(255,255,255,0.04);
+}
+.bubble-wrap.me .bubble{
+    background:rgba(74,222,128,0.14);
+    border-color:rgba(74,222,128,0.35);
+}
+.bubble.deleted{
+    font-style:italic;
+    color:#cbd5e1;
+    opacity:.9;
+}
+.msg-actions{
+    display:flex;
+    justify-content:flex-end;
+    margin-top:6px;
+}
+.msg-menu-btn{
+    border:1px solid rgba(255,255,255,0.18);
+    background:rgba(255,255,255,0.04);
+    color:#d1d5db;
+    border-radius:8px;
+    padding:0 8px;
+    line-height:1.1;
+}
+.msg-menu-btn:hover{
+    background:rgba(255,255,255,0.1);
+    color:#fff;
+}
+.chat-compose{
+    border-top:1px solid rgba(255,255,255,0.08);
+    padding:12px;
+}
+.empty-chat{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--muted);
+    height:100%;
+}
+@media (max-width: 992px){
+    .shell{ grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" href="{{ url_for('home') }}"><span class="agro-lamp"></span>{{ t('brand') }}</a>
+        <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav">☰</button>
+        <div class="collapse navbar-collapse" id="nav">
+            <ul class="navbar-nav ms-auto align-items-lg-center">
+            {% set ep = request.endpoint %}
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('home') }}">{{ t('nav_home') }}</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('crop_recommend_page') }}">{{ t('nav_crop_full') }}</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('disease_detection') }}">{{ t('nav_disease_full') }}</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('indoor_plant_detection') }}">{{ t('nav_indoor_full') }}</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('chatbot_page') }}">{{ t('nav_chatbot') }}</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('communications_page') }}">{{ t('nav_communications') }}</a></li>
+                <li class="nav-item"><a class="nav-link active" href="{{ url_for('direct_messages_page') }}">{{ t('nav_messages') }}</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('menu_page') }}">{{ t('nav_settings') }}</a></li>
+                {% include '_lang_switch_li.html' %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="page">
+    <h2 class="title mb-3">Messenger</h2>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="alert alert-warning">{{ messages[0] }}</div>
+    {% endif %}
+    {% endwith %}
+
+    <div class="shell">
+        <aside class="panel left">
+            <div>
+                <h6 class="mb-2">Friends</h6>
+                <div class="friends-list">
+                    {% for u in friends %}
+                    <a class="friend-item {% if selected_friend_id == u.id %}active{% endif %}" href="{{ url_for('direct_messages_page', friend_id=u.id) }}">
+                        <span class="friend-left">
+                            {% if u.profile_image %}
+                            <img class="friend-avatar" src="{{ url_for('static', filename='profile_uploads/' ~ u.profile_image) }}" alt="{{ u.username }}">
+                            {% else %}
+                            <span>👤</span>
+                            {% endif %}
+                            <span>{{ u.username }}</span>
+                        </span>
+                        <span class="meta">Chat</span>
+                    </a>
+                    {% else %}
+                    <div class="meta">No friends yet.</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div>
+                <h6 class="mb-2">Add Friend</h6>
+                <form method="GET" action="{{ url_for('direct_messages_page') }}" class="d-flex gap-2 mb-2">
+                    <input class="form-control" name="search" value="{{ search }}" placeholder="Search username...">
+                    <button class="btn btn-main btn-sm">Search</button>
+                </form>
+                <form method="POST" action="{{ url_for('send_friend_request') }}" class="d-grid gap-2">
+                    <select class="form-select" name="receiver_id" required>
+                        <option value="">Select user</option>
+                        {% for u in discover_users %}
+                        <option value="{{ u.id }}">{{ u.username }}</option>
+                        {% endfor %}
+                    </select>
+                    <button class="btn btn-main btn-sm">Send Request</button>
+                </form>
+            </div>
+
+            <div>
+                <h6 class="mb-2">Incoming Requests</h6>
+                <div class="d-grid gap-2">
+                    {% for req in incoming_friend_requests %}
+                    <div class="req-box">
+                        <div style="font-weight:600">
+                            {% if req.sender_profile_image %}
+                            <img class="friend-avatar me-1" src="{{ url_for('static', filename='profile_uploads/' ~ req.sender_profile_image) }}" alt="{{ req.sender_name }}">
+                            {% endif %}
+                            {{ req.sender_name }}
+                        </div>
+                        <div class="meta">{{ req.created_at }}</div>
+                        <div class="d-flex gap-2 mt-2">
+                            <form method="POST" action="{{ url_for('accept_friend_request', request_id=req.id) }}">
+                                <button class="btn btn-sm btn-success">Accept</button>
+                            </form>
+                            <form method="POST" action="{{ url_for('reject_friend_request', request_id=req.id) }}">
+                                <button class="btn btn-sm btn-outline-danger">Reject</button>
+                            </form>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="meta">No incoming requests.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </aside>
+
+        <section class="panel chat">
+            <div class="chat-head">
+                {% if selected_friend %}
+                <strong>{{ selected_friend.username }}</strong>
+                <span class="meta">Friend chat</span>
+                {% else %}
+                <strong>Select a friend to start chat</strong>
+                <span class="meta">Messenger mode</span>
+                {% endif %}
+            </div>
+
+            <div class="messages" id="messages">
+                {% if selected_friend %}
+                    {% for m in conversation %}
+                    <div class="bubble-wrap {% if m.sender_id == session.user_id %}me{% endif %}" id="msg-wrap-{{ m.id }}">
+                        <div class="bubble {% if m.deleted_for_all %}deleted{% endif %}">
+                            <div class="msg-content">{% if m.deleted_for_all %}This message was deleted{% else %}{{ m.content }}{% endif %}</div>
+                            <div class="meta mt-1">{{ m.created_at }}</div>
+                            {% if not m.deleted_for_all %}
+                            <div class="msg-actions">
+                                <div class="dropdown">
+                                    <button class="msg-menu-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">...</button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><button type="button" class="dropdown-item js-delete-msg" data-id="{{ m.id }}" data-mode="me">Delete for me</button></li>
+                                        {% if m.sender_id == session.user_id %}
+                                        <li><button type="button" class="dropdown-item text-danger js-delete-msg" data-id="{{ m.id }}" data-mode="everyone">Delete for everyone</button></li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="empty-chat">No messages yet. Start the conversation.</div>
+                    {% endfor %}
+                {% else %}
+                <div class="empty-chat">Choose a friend from the left panel.</div>
+                {% endif %}
+            </div>
+
+            <div class="chat-compose">
+                {% if selected_friend %}
+                <form method="POST" action="{{ url_for('send_message') }}" class="d-flex gap-2" id="chat-form">
+                    <input type="hidden" name="receiver_id" value="{{ selected_friend.id }}">
+                    <input class="form-control" name="content" id="chat-input" placeholder="Type a message..." required>
+                    <button class="btn btn-main">Send</button>
+                </form>
+                <div class="meta mt-1" id="chat-error"></div>
+                {% else %}
+                <div class="meta">You can message friends only.</div>
+                {% endif %}
+            </div>
+        </section>
+    </div>
+</div>
+
+<script>
+const messagesEl = document.getElementById("messages");
+if (messagesEl) messagesEl.scrollTop = messagesEl.scrollHeight;
+
+const chatForm = document.getElementById("chat-form");
+const chatInput = document.getElementById("chat-input");
+const chatError = document.getElementById("chat-error");
+
+function showNotify(message, isError = false) {
+    const existing = document.getElementById("notify-toast");
+    if (existing) existing.remove();
+
+    const toast = document.createElement("div");
+    toast.id = "notify-toast";
+    toast.style.position = "fixed";
+    toast.style.right = "16px";
+    toast.style.bottom = "16px";
+    toast.style.zIndex = "99999";
+    toast.style.padding = "10px 14px";
+    toast.style.borderRadius = "10px";
+    toast.style.border = "1px solid rgba(255,255,255,0.2)";
+    toast.style.background = isError
+        ? "rgba(127,29,29,0.95)"
+        : "linear-gradient(135deg,#16a34a,#06b6d4)";
+    toast.style.color = "#fff";
+    toast.style.fontSize = "13px";
+    toast.style.boxShadow = "0 8px 24px rgba(0,0,0,0.35)";
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        if (toast.parentNode) toast.remove();
+    }, 2200);
+}
+
+if (chatForm && messagesEl && chatInput) {
+    chatForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (chatError) chatError.textContent = "";
+        const formData = new FormData(chatForm);
+        const text = (formData.get("content") || "").toString().trim();
+        if (!text) return;
+
+        try {
+            const res = await fetch("{{ url_for('api_send_message') }}", {
+                method: "POST",
+                body: formData
+            });
+            const data = await res.json();
+            if (!res.ok || !data.ok) {
+                if (chatError) chatError.textContent = data.error || "Failed to send message.";
+                showNotify(data.error || "Failed to send message.", true);
+                return;
+            }
+
+            const wrap = document.createElement("div");
+            wrap.className = "bubble-wrap me";
+            if (data.message_id) wrap.id = `msg-wrap-${data.message_id}`;
+            const escaped = (data.content || "").replace(/[&<>"']/g, (c) => ({
+                "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
+            }[c]));
+            wrap.innerHTML = `
+                <div class="bubble">
+                    <div class="msg-content">${escaped}</div>
+                    <div class="meta mt-1">${data.created_at}</div>
+                    <div class="msg-actions">
+                        <div class="dropdown">
+                            <button class="msg-menu-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">...</button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><button type="button" class="dropdown-item js-delete-msg" data-id="${data.message_id || ''}" data-mode="me">Delete for me</button></li>
+                                <li><button type="button" class="dropdown-item text-danger js-delete-msg" data-id="${data.message_id || ''}" data-mode="everyone">Delete for everyone</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+            messagesEl.appendChild(wrap);
+            chatInput.value = "";
+            chatInput.focus();
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+            showNotify("Message sent");
+        } catch (err) {
+            if (chatError) chatError.textContent = "Network error. Please try again.";
+            showNotify("Network error. Please try again.", true);
+        }
+    });
+}
+
+document.addEventListener("click", async (e) => {
+    const btn = e.target.closest(".js-delete-msg");
+    if (!btn) return;
+    const messageId = btn.getAttribute("data-id");
+    const mode = btn.getAttribute("data-mode");
+    if (!messageId) return;
+
+    const fd = new FormData();
+    fd.append("message_id", messageId);
+    fd.append("mode", mode);
+
+    try {
+        const res = await fetch("{{ url_for('api_delete_message') }}", { method: "POST", body: fd });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+            if (chatError) chatError.textContent = data.error || "Failed to delete message.";
+            return;
+        }
+
+        const wrap = document.getElementById(`msg-wrap-${messageId}`);
+        if (!wrap) return;
+        if (mode === "me") {
+            wrap.remove();
+        } else {
+            const bubble = wrap.querySelector(".bubble");
+            const content = wrap.querySelector(".msg-content");
+            const actions = wrap.querySelector(".msg-actions");
+            if (bubble) bubble.classList.add("deleted");
+            if (content) content.textContent = "This message was deleted";
+            if (actions) actions.remove();
+        }
+    } catch (err) {
+        if (chatError) chatError.textContent = "Network error. Please try again.";
+    }
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% include '_footer.html' %}
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}" dir="{{ 'rtl' if is_rtl else 'ltr' }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile — {{ t('brand') }}</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+{% if is_rtl %}
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<style>body{font-family:'Noto Sans Arabic','DM Sans',sans-serif!important;}</style>
+{% endif %}
+
+<style>
+:root {
+    --accent:#00ff88;
+    --accent2:#00e6ff;
+    --bg:#020b14;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'DM Sans', sans-serif;
+    color: #ffffff;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(0,255,200,0.18), transparent 55%),
+        radial-gradient(circle at 85% 10%, rgba(0,150,255,0.22), transparent 60%),
+        radial-gradient(circle at 60% 85%, rgba(0,255,180,0.15), transparent 70%),
+        radial-gradient(circle at 10% 90%, rgba(0,120,255,0.12), transparent 65%),
+        var(--bg);
+    background-attachment: fixed;
+}
+
+/* GLASS PANEL */
+.glass-box {
+    max-width: 700px;
+    margin: 80px auto;
+    padding: 25px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(0,255,150,0.2);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 0 25px rgba(0,255,150,0.08);
+}
+
+/* TITLE */
+h2 {
+    color: var(--accent);
+    font-weight: 700;
+}
+
+/* INPUTS */
+.form-control {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(0,255,150,0.3);
+    color: #fff;
+}
+
+.form-control::placeholder {
+    color: #cfcfcf;
+}
+
+/* BUTTON */
+.btn-main {
+    background: linear-gradient(90deg, #00c26e, #00e6ff);
+    border: none;
+    padding: 12px;
+    border-radius: 40px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.btn-main:hover {
+    filter: brightness(1.1);
+}
+
+/* AVATAR */
+.avatar {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(0,255,150,0.5);
+    box-shadow: 0 0 20px rgba(0,255,150,0.15);
+}
+.lang-bar{position:fixed;top:12px;right:12px;z-index:2000;}
+[dir="rtl"] .lang-bar{right:auto;left:12px;}
+</style>
+</head>
+
+<body>
+
+<div class="lang-bar">{% include '_lang_nav_compact.html' %}</div>
+
+<!-- PROFILE -->
+<div class="glass-box">
+
+<h2 class="mb-3">User Profile</h2>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="alert alert-info">{{ messages[0] }}</div>
+    {% endif %}
+{% endwith %}
+
+<!-- AVATAR -->
+<div class="text-center mb-4">
+    {% if profile.profile_image %}
+        <img class="avatar" src="{{ url_for('static', filename='profile_uploads/' ~ profile.profile_image) }}">
+    {% else %}
+        <img class="avatar" src="{{ url_for('static', filename='img/logo.png') }}">
+    {% endif %}
+</div>
+
+<!-- FORM -->
+<form method="POST" action="{{ url_for('profile_page') }}" enctype="multipart/form-data" class="d-grid gap-3">
+
+    <input class="form-control" type="text" name="username"
+           value="{{ profile.username }}" placeholder="Username" required>
+
+    <input class="form-control" type="tel" name="phone"
+           value="{{ profile.phone or '' }}" placeholder="Phone Number">
+
+    <input class="form-control" type="file" name="profile_image">
+
+    <button class="btn-main">Update Profile</button>
+
+</form>
+
+<!-- BACK -->
+<div class="mt-3 text-center">
+    <a class="text-info" href="{{ url_for('menu_page') }}">Back to Settings</a>
+</div>
+
+</div>
+
+{% include '_footer.html' %}
+</body>
+</html>

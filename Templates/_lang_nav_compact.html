@@ -1,0 +1,5 @@
+<a class="btn btn-sm btn-outline-light text-nowrap py-0 px-2"
+   href="{{ url_for('set_language', lang_code=('en' if current_lang == 'ar' else 'ar'), next=request.full_path) }}"
+   title="{{ t('lang_footer_hint') }}">
+  {% if current_lang == 'ar' %}{{ t('lang_switch_to_en') }}{% else %}{{ t('lang_switch_to_ar') }}{% endif %}
+</a>

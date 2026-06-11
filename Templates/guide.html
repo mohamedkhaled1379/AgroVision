@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}" dir="{{ 'rtl' if is_rtl else 'ltr' }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ crop_name }} Guide — {{ t('brand') }}</title>
+
+<!-- FONTS -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+{% if is_rtl %}
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<style>body{font-family:'Noto Sans Arabic','DM Sans',sans-serif!important;}</style>
+{% endif %}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+
+:root{
+    --accent:#00ff88;
+    --accent2:#00e6ff;
+}
+
+/* BACKGROUND */
+body{
+    margin:0;
+    font-family:'DM Sans',sans-serif;
+    color:#fff;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(0,255,200,0.18), transparent 55%),
+        radial-gradient(circle at 85% 10%, rgba(0,150,255,0.22), transparent 60%),
+        radial-gradient(circle at 60% 85%, rgba(0,255,180,0.15), transparent 70%),
+        radial-gradient(circle at 10% 90%, rgba(0,120,255,0.12), transparent 65%),
+        #020b14;
+}
+
+/* GLOW */
+.glow{
+    position:fixed;
+    width:420px;
+    height:420px;
+    border-radius:50%;
+    filter:blur(140px);
+    opacity:0.35;
+    z-index:-10;
+}
+.glow-green{background:#00ffcc;}
+.glow-blue{background:#009dff;}
+
+/* NAVBAR */
+.navbar{
+    background:rgba(0,0,0,0.25);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid rgba(0,255,180,0.1);
+}
+.navbar-brand{
+    font-family:'Syne',sans-serif;
+    font-weight:800;
+    color:var(--accent)!important;
+}
+
+/* PAGE */
+.page{
+    max-width:1000px;
+    margin:auto;
+    padding:120px 20px 40px;
+}
+
+/* TITLE */
+h1{
+    font-family:'Syne',sans-serif;
+    font-weight:800;
+    color:var(--accent);
+    text-shadow:0 0 20px rgba(0,255,150,0.3);
+    text-align:center;
+}
+
+/* BOX */
+.box{
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(0,255,150,0.25);
+    border-radius:18px;
+    padding:30px;
+    backdrop-filter:blur(7px);
+    box-shadow:0 0 25px rgba(0,255,150,0.15);
+}
+
+.guide-photo-wrap{
+    text-align:center;
+    margin-bottom:18px;
+}
+.guide-photo-label{
+    font-size:0.85rem;
+    color:var(--accent2);
+    margin-bottom:8px;
+    font-weight:600;
+}
+.guide-image{
+    width:100%;
+    max-width:140px;
+    border-radius:14px;
+    border:1px solid rgba(0,255,150,0.35);
+    box-shadow:0 0 24px rgba(0,255,150,0.18);
+    margin:0 auto;
+    display:block;
+    object-fit:cover;
+}
+
+/* GRID */
+.guide-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:15px;
+    margin-top:20px;
+}
+
+@media(max-width:768px){
+    .guide-grid{grid-template-columns:1fr;}
+}
+
+/* CARD */
+.card-item{
+    background:rgba(0,255,150,0.05);
+    border:1px solid rgba(0,255,150,0.2);
+    border-radius:12px;
+    padding:15px;
+    transition:0.3s;
+}
+
+.card-item:hover{
+    transform:translateY(-3px);
+    box-shadow:0 0 15px rgba(0,255,150,0.2);
+}
+
+/* HEADINGS */
+h3{
+    color:var(--accent2);
+    font-family:'Syne',sans-serif;
+    font-size:1.2rem;
+}
+
+/* TEXT */
+p,li{
+    color:#d5f7e8;
+}
+
+/* BUTTON */
+.btn-main{
+    display:inline-block;
+    margin-top:20px;
+    padding:12px 25px;
+    border-radius:40px;
+    background:linear-gradient(90deg,#00c26e,#00e6ff);
+    color:#000;
+    font-weight:700;
+    text-decoration:none;
+    transition:0.3s;
+}
+
+.btn-main:hover{
+    transform:translateY(-2px);
+    box-shadow:0 0 25px rgba(0,255,200,0.5);
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- GLOW -->
+<div class="glow glow-green" style="top:-80px;left:-60px;"></div>
+<div class="glow glow-blue" style="top:50px;right:-120px;"></div>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg fixed-top">
+<div class="container d-flex justify-content-between align-items-center">
+
+    <a class="navbar-brand mb-0" href="{{ url_for('home') }}">
+        <span class="agro-lamp"></span>{{ t('brand') }}
+    </a>
+    {% include '_lang_nav_compact.html' %}
+
+</div>
+</nav>
+
+<!-- PAGE -->
+<div class="page">
+
+<h1>{{ crop_name }} Guide</h1>
+
+{% if guide_source == 'ai' %}
+<div class="alert alert-info text-dark mb-3" style="max-width:720px;margin-left:auto;margin-right:auto;border-radius:12px;">
+    <strong>AI-generated agronomic profile.</strong> Treat as advisory only: validate rates, products, and timing against variety technical sheets, soil tests, weather, and guidance from your certified agronomist or extension service prior to field implementation.
+    <div class="small mt-2"><a href="{{ request.path }}?ai=0{{ ('&image=' ~ (request.args.get('image')|urlencode)) if request.args.get('image') else '' }}" class="text-dark">View legacy static guide</a></div>
+</div>
+{% elif guide_source == 'static' %}
+<div class="small text-center mb-2" style="color:rgba(200,255,220,0.75);">
+    {% if ai_guides_available|default(false) %}
+    <a href="{{ request.path }}?ai=1{{ ('&image=' ~ (request.args.get('image')|urlencode)) if request.args.get('image') else '' }}" style="color:var(--accent2);font-weight:600;">Generate professional AI growing plan</a>
+    <div class="mt-1" style="opacity:0.85;font-size:0.85rem;">Adds <code>?ai=1</code> to this page (optional). Crop recommendation always opens the built-in guide first.</div>
+    {% else %}
+    <span style="opacity:0.75;">AI-reviewed crop plans are turned off here until a Groq API key is configured for guides (<code>GROQ_GUIDE_API_KEY</code> or <code>GROQ_API_KEY</code>).</span>
+    {% endif %}
+</div>
+{% endif %}
+
+<div class="box">
+
+{% if guide_image_url %}
+<div class="guide-photo-wrap">
+    <div class="guide-photo-label">Your photo</div>
+    <img class="guide-image" src="{{ guide_image_url }}" alt="Crop photo you uploaded">
+</div>
+{% endif %}
+
+<div class="guide-grid">
+
+<div class="card-item">
+<h3>Season</h3>
+<p>{{ guide.season }}</p>
+</div>
+
+<div class="card-item">
+<h3>Soil</h3>
+<p>{{ guide.soil }}</p>
+</div>
+
+<div class="card-item">
+<h3>Climate</h3>
+<p>{{ guide.climate }}</p>
+</div>
+
+<div class="card-item">
+<h3>Seed Rate</h3>
+<p>{{ guide.seed_rate }}</p>
+</div>
+
+<div class="card-item">
+<h3>Spacing</h3>
+<p>{{ guide.spacing }}</p>
+</div>
+
+<div class="card-item">
+<h3>Duration</h3>
+<p>{{ guide.duration }}</p>
+</div>
+
+</div>
+
+<h3 class="mt-4">Water Management</h3>
+<p>{{ guide.water_management }}</p>
+
+<h3>Fertilizer</h3>
+<p>{{ guide.fertilizer }}</p>
+
+<h3>Key Practices</h3>
+<ul>
+{% for item in guide.key_practices %}
+<li>{{ item }}</li>
+{% endfor %}
+</ul>
+
+<a href="{{ url_for('crop_recommend_page') }}" class="btn-main">
+⬅ Back
+</a>
+
+</div>
+
+</div>
+
+{% include '_footer.html' %}
+</body>
+</html>

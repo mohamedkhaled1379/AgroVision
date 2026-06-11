@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}" dir="{{ 'rtl' if is_rtl else 'ltr' }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ t('login_register_link') }} — {{ t('brand') }}</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+{% if is_rtl %}
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<style>body{font-family:'Noto Sans Arabic','Segoe UI',sans-serif!important;}</style>
+{% endif %}
+
+<style>
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+    color: #ffffff;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(0,255,200,0.18), transparent 55%),
+        radial-gradient(circle at 85% 10%, rgba(0,150,255,0.22), transparent 60%),
+        radial-gradient(circle at 60% 85%, rgba(0,255,180,0.15), transparent 70%),
+        radial-gradient(circle at 10% 90%, rgba(0,120,255,0.12), transparent 65%),
+        #020b14;
+    background-attachment: fixed;
+}
+
+/* glow */
+.glow {
+    position: fixed;
+    width: 420px;
+    height: 420px;
+    border-radius: 50%;
+    filter: blur(140px);
+    opacity: 0.35;
+    z-index: -10;
+}
+.glow-green { background: #00ffcc; }
+.glow-blue { background: #009dff; }
+
+/* navbar */
+.navbar {
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(10px);
+    padding: 15px 0;
+    border-bottom: 1px solid rgba(0,255,180,0.08);
+}
+
+/* card */
+.panel {
+    max-width: 500px;
+    margin: 90px auto;
+    padding: 30px;
+    border-radius: 15px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(0,255,150,0.25);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 0 25px rgba(0,255,150,0.08);
+}
+
+h2 {
+    color: #00ff88;
+    font-weight: 700;
+}
+
+/* inputs */
+.form-control {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(0,255,150,0.3);
+    color: #fff;
+}
+
+.form-control::placeholder {
+    color: #cfcfcf;
+}
+
+/* button */
+.btn-main {
+    background: #00ff88;
+    border: none;
+    color: #000;
+    font-weight: 600;
+    padding: 12px;
+    border-radius: 10px;
+    transition: 0.3s;
+}
+
+.btn-main:hover {
+    background: #00cc6e;
+    transform: scale(1.03);
+}
+
+a {
+    color: #7ee8ff;
+    text-decoration: none;
+}
+</style>
+</head>
+
+<body>
+
+<!-- glow -->
+<div class="glow glow-green" style="top:-80px;left:-60px;"></div>
+<div class="glow glow-blue" style="top:50px;right:-120px;"></div>
+
+<!-- navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container d-flex justify-content-between align-items-center">
+        <a class="navbar-brand text-success mb-0" href="{{ url_for('home') }}">
+            <span class="agro-lamp"></span>{{ t('brand') }}
+        </a>
+        {% include '_lang_nav_compact.html' %}
+    </div>
+</nav>
+
+<!-- register box -->
+<div class="panel">
+
+    <h2>{{ t('register_title') }}</h2>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="alert alert-warning py-2">{{ messages[0] }}</div>
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('register') }}" class="d-grid gap-3 mt-3">
+
+        <input class="form-control" type="text" name="username" placeholder="{{ t('login_username') }}" required>
+
+        <input class="form-control" type="tel" name="phone" placeholder="{{ t('register_phone') }}" required>
+
+        <input class="form-control" type="password" name="password" placeholder="{{ t('login_password') }}" required>
+
+        <input class="form-control" type="password" name="confirm_password" placeholder="{{ t('register_confirm_pw') }}" required>
+
+        <button class="btn-main">{{ t('register_submit') }}</button>
+
+    </form>
+
+    <p class="mt-3 mb-0">
+        {{ t('register_have_account') }}
+        <a href="{{ url_for('login') }}">{{ t('login_title') }}</a>
+    </p>
+
+</div>
+
+{% include '_footer.html' %}
+</body>
+</html>

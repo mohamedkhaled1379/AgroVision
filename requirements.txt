@@ -1,0 +1,16 @@
+flask
+werkzeug
+numpy
+pandas
+joblib
+opencv-python
+tensorflow
+torch
+torchvision
+pillow
+groq
+langdetect
+flask-limiter
+gunicorn
+pytest
+pyodbc

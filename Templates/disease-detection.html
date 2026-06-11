@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}" dir="{{ 'rtl' if is_rtl else 'ltr' }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ t('disease_page_title') }} — {{ t('brand') }}</title>
+
+<!-- FONTS -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+{% if is_rtl %}
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<style>body{font-family:'Noto Sans Arabic','DM Sans',sans-serif!important;}</style>
+{% endif %}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+:root {
+    --bg:#080f0a;
+    --surface:#0d1a10;
+    --panel:#101d13;
+    --border:rgba(74,222,128,0.12);
+    --accent:#4ade80;
+    --accent2:#22d3ee;
+    --text:#e5e7eb;
+    --muted:#6b7280;
+}
+
+body{
+    background:
+        linear-gradient(rgba(8,15,10,0.78), rgba(8,15,10,0.78)),
+        url("{{ url_for('static', filename='img/disease-bg.png') }}");
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    background-attachment:fixed;
+    color:var(--text);
+    font-family:'DM Sans',sans-serif;
+}
+
+/* NAVBAR */
+.navbar{
+    background:rgba(8,15,10,0.85);
+    backdrop-filter:blur(15px);
+    border-bottom:1px solid var(--border);
+}
+.navbar-brand{
+    color:var(--accent)!important;
+    font-weight:800;
+    font-family:'Syne',sans-serif;
+}
+.nav-link{
+    color:var(--muted)!important;
+}
+.nav-link.active,
+.nav-link:hover{
+    color:var(--accent)!important;
+}
+
+/* PAGE */
+.page{
+    max-width:700px;
+    margin:auto;
+    padding:80px 20px 40px;
+    text-align:center;
+}
+
+/* TITLE */
+.page-title{
+    font-family:'Syne',sans-serif;
+    font-size:2.4rem;
+    font-weight:800;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+/* SUBTEXT */
+.subtitle{
+    color:var(--muted);
+    margin-bottom:30px;
+}
+
+/* BOX */
+.upload-box{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:30px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.6);
+}
+
+/* INPUT */
+.form-control{
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.1);
+    color:#fff;
+}
+.form-control::file-selector-button{
+    background:rgba(74,222,128,0.15);
+    border:none;
+    color:#fff;
+    padding:6px 12px;
+    border-radius:8px;
+}
+.form-control:focus{
+    border-color:var(--accent);
+    box-shadow:0 0 0 2px rgba(74,222,128,0.1);
+}
+
+/* BUTTON */
+.btn-main{
+    background:linear-gradient(135deg,#4ade80,#22d3ee);
+    border:none;
+    color:#000;
+    font-weight:700;
+    padding:12px 20px;
+    border-radius:12px;
+}
+
+.btn-outline{
+    border:1px solid var(--accent);
+    color:var(--accent);
+    padding:10px 20px;
+    border-radius:12px;
+    text-decoration:none;
+}
+
+.btn-outline:hover{
+    background:rgba(74,222,128,0.1);
+}
+
+/* ALERT */
+.alert{
+    border-radius:10px;
+}
+
+.dynamic-info{
+    margin-top:20px;
+    text-align:left;
+    background:rgba(255,255,255,0.04);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:14px;
+    color:#d1d5db;
+    white-space:pre-wrap;
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg">
+<div class="container">
+
+<a class="navbar-brand" href="{{ url_for('home') }}">
+<span class="agro-lamp"></span>{{ t('brand') }}
+</a>
+
+<button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav">
+☰
+</button>
+
+<div class="collapse navbar-collapse" id="nav">
+<ul class="navbar-nav ms-auto align-items-lg-center">
+{% set ep = request.endpoint %}
+<li class="nav-item"><a class="nav-link" href="{{ url_for('home') }}">{{ t('nav_home') }}</a></li>
+<li class="nav-item"><a class="nav-link" href="{{ url_for('crop_recommend_page') }}">{{ t('nav_crop') }}</a></li>
+<li class="nav-item"><a class="nav-link active" href="{{ url_for('disease_detection') }}">{{ t('nav_disease') }}</a></li>
+<li class="nav-item"><a class="nav-link" href="{{ url_for('indoor_plant_detection') }}">{{ t('nav_indoor') }}</a></li>
+<li class="nav-item"><a class="nav-link" href="{{ url_for('chatbot_page') }}">{{ t('nav_chatbot') }}</a></li>
+<li class="nav-item"><a class="nav-link" href="{{ url_for('communications_page') }}">{{ t('nav_community') }}</a></li>
+{% if session.get('user_id') %}
+<li class="nav-item"><a class="nav-link" href="{{ url_for('direct_messages_page') }}">{{ t('nav_messages') }}</a></li>
+{% endif %}
+<li class="nav-item"><a class="nav-link" href="{{ url_for('menu_page') }}">{{ t('nav_settings') }}</a></li>
+{% include '_lang_switch_li.html' %}
+</ul>
+</div>
+
+</div>
+</nav>
+
+<!-- CONTENT -->
+<div class="page">
+
+<h1 class="page-title">{{ t('disease_page_title') }}</h1>
+<p class="subtitle">{{ t('disease_page_sub') }}</p>
+
+<div class="upload-box">
+
+{% if error %}
+<div class="alert alert-danger">{{ error }}</div>
+{% endif %}
+
+<form method="POST" action="{{ url_for('disease_detection') }}" enctype="multipart/form-data">
+
+<input type="file" name="file" class="form-control mb-3" required>
+
+<div class="d-flex gap-2 justify-content-center flex-wrap">
+<button class="btn-main">{{ t('disease_btn_detect') }}</button>
+<a href="{{ url_for('home') }}" class="btn-outline">{{ t('btn_back') }}</a>
+</div>
+
+</form>
+
+{% if footer_settings and footer_settings.disease_info %}
+<div class="dynamic-info">
+{{ footer_settings.disease_info }}
+</div>
+{% endif %}
+
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+{% include '_footer.html' %}
+</body>
+</html>

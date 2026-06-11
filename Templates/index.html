@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}" dir="{{ 'rtl' if is_rtl else 'ltr' }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ t('brand') }}</title>
+
+<!-- FONTS -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+{% if is_rtl %}
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<style>body{font-family:'Noto Sans Arabic','DM Sans',sans-serif!important;}</style>
+{% endif %}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+:root {
+    --bg:#080f0a;
+    --surface:#0d1a10;
+    --panel:#101d13;
+    --border:rgba(74,222,128,0.12);
+    --accent:#4ade80;
+    --accent2:#22d3ee;
+    --text:#e5e7eb;
+    --muted:#6b7280;
+}
+
+body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'DM Sans',sans-serif;
+}
+
+/* NAVBAR */
+.navbar{
+    background:rgba(8,15,10,0.85);
+    backdrop-filter:blur(15px);
+    border-bottom:1px solid var(--border);
+}
+.navbar-brand{
+    font-family:'Syne',sans-serif;
+    color:var(--accent)!important;
+    font-weight:800;
+}
+.nav-link{
+    color:var(--muted)!important;
+}
+.nav-link:hover{
+    color:var(--accent)!important;
+}
+
+/* HERO */
+.hero{
+    text-align:center;
+    padding:120px 20px 60px;
+}
+
+.hero h1{
+    font-family:'Syne',sans-serif;
+    font-size:3.5rem;
+    font-weight:800;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+.hero p{
+    color:var(--muted);
+    font-size:1.2rem;
+    margin:20px 0;
+}
+
+.btn-main{
+    background:linear-gradient(135deg,#4ade80,#22d3ee);
+    border:none;
+    color:#000;
+    font-weight:700;
+    padding:12px 30px;
+    border-radius:12px;
+}
+
+/* ABOUT */
+.about{
+    max-width:700px;
+    margin:40px auto;
+    color:var(--muted);
+}
+
+/* FEATURES */
+.features{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:20px;
+    padding:20px;
+}
+
+.card-feature{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:25px;
+    width:260px;
+    text-align:center;
+    transition:0.3s;
+    cursor:pointer;
+}
+
+.card-feature:hover{
+    transform:translateY(-5px);
+    border-color:var(--accent);
+    box-shadow:0 10px 40px rgba(74,222,128,0.15);
+}
+
+.card-feature img{
+    width:50px;
+    margin-bottom:15px;
+}
+
+.card-feature h3{
+    font-size:1.2rem;
+    margin-bottom:10px;
+}
+
+.card-feature p{
+    font-size:0.9rem;
+    color:var(--muted);
+}
+
+.card-feature .learn-more{
+    display:inline-block;
+    margin-top:12px;
+    font-size:0.82rem;
+    color:var(--accent2);
+    font-weight:600;
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg">
+<div class="container">
+
+<a class="navbar-brand" href="{{ url_for('home') }}">
+<span class="agro-lamp"></span>{{ t('brand') }}
+</a>
+
+<button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav">☰</button>
+
+<div class="collapse navbar-collapse" id="nav">
+<ul class="navbar-nav ms-auto align-items-lg-center">
+{% set ep = request.endpoint %}
+<li class="nav-item"><a class="nav-link {% if ep == 'home' %}active{% endif %}" href="{{ url_for('home') }}">{{ t('nav_home') }}</a></li>
+<li class="nav-item"><a class="nav-link {% if ep == 'crop_recommend_page' %}active{% endif %}" href="{{ url_for('crop_recommend_page') }}">{{ t('nav_crop') }}</a></li>
+<li class="nav-item"><a class="nav-link {% if ep == 'disease_detection' %}active{% endif %}" href="{{ url_for('disease_detection') }}">{{ t('nav_disease') }}</a></li>
+<li class="nav-item"><a class="nav-link {% if ep == 'indoor_plant_detection' or ep == 'indoor_plant_care' %}active{% endif %}" href="{{ url_for('indoor_plant_detection') }}">{{ t('nav_indoor') }}</a></li>
+<li class="nav-item"><a class="nav-link {% if ep == 'chatbot_page' %}active{% endif %}" href="{{ url_for('chatbot_page') }}">{{ t('nav_chatbot') }}</a></li>
+<li class="nav-item"><a class="nav-link {% if ep == 'communications_page' %}active{% endif %}" href="{{ url_for('communications_page') }}">{{ t('nav_community') }}</a></li>
+{% if session.get('user_id') %}
+<li class="nav-item"><a class="nav-link {% if ep == 'direct_messages_page' %}active{% endif %}" href="{{ url_for('direct_messages_page') }}">{{ t('nav_messages') }}</a></li>
+{% endif %}
+<li class="nav-item"><a class="nav-link {% if ep == 'menu_page' %}active{% endif %}" href="{{ url_for('menu_page') }}">{{ t('nav_settings') }}</a></li>
+{% include '_lang_switch_li.html' %}
+</ul>
+</div>
+
+</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+
+{% if session.get('username') %}
+<p>{{ t('index_hi') }} {{ session.username }}</p>
+{% endif %}
+
+<h1>{{ t('index_title') }}</h1>
+
+<p>{{ t('index_tagline') }}</p>
+
+<a href="{{ url_for('crop_recommend_page') }}" class="btn-main">
+{{ t('index_get_started') }}
+</a>
+
+<div class="about">
+{{ t('index_about') }}
+</div>
+
+</section>
+
+<!-- FEATURES -->
+<section class="features">
+
+<div class="card-feature" onclick="location.href='{{ url_for('feature_guide', slug='crop') }}'">
+<img src="https://img.icons8.com/ios-filled/100/4ade80/plant-under-sun.png">
+<h3>{{ t('feat_crop_title') }}</h3>
+<p>{{ t('feat_crop_desc') }}</p>
+<span class="learn-more">{{ t('feat_learn_more') }} →</span>
+</div>
+
+<div class="card-feature" onclick="location.href='{{ url_for('analysis_booking_page') }}'">
+<img src="https://img.icons8.com/ios-filled/100/4ade80/temperature.png">
+<h3>{{ t('feat_iot_title') }}</h3>
+<p>{{ t('feat_iot_desc') }}</p>
+<span class="learn-more">{{ t('feat_learn_more') }} →</span>
+</div>
+
+<div class="card-feature" onclick="location.href='{{ url_for('feature_guide', slug='disease') }}'">
+<img src="https://img.icons8.com/ios-filled/100/4ade80/virus.png">
+<h3>{{ t('feat_disease_title') }}</h3>
+<p>{{ t('feat_disease_desc') }}</p>
+<span class="learn-more">{{ t('feat_learn_more') }} →</span>
+</div>
+
+<div class="card-feature" onclick="location.href='{{ url_for('feature_guide', slug='indoor') }}'">
+<img src="https://img.icons8.com/ios-filled/100/4ade80/potted-plant.png">
+<h3>{{ t('feat_indoor_title') }}</h3>
+<p>{{ t('feat_indoor_desc') }}</p>
+<span class="learn-more">{{ t('feat_learn_more') }} →</span>
+</div>
+
+<div class="card-feature" onclick="location.href='{{ url_for('feature_guide', slug='chatbot') }}'">
+<img src="https://img.icons8.com/ios-filled/100/4ade80/chat.png">
+<h3>{{ t('feat_chat_title') }}</h3>
+<p>{{ t('feat_chat_desc') }}</p>
+<span class="learn-more">{{ t('feat_learn_more') }} →</span>
+</div>
+
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+{% include '_footer.html' %}
+</body>
+</html>

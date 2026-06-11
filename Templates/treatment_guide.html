@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}" dir="{{ 'rtl' if is_rtl else 'ltr' }}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{ t('disease_page_title') }} — {{ t('brand') }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    {% if is_rtl %}
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>body{font-family:'Noto Sans Arabic','Segoe UI',sans-serif!important;}</style>
+    {% endif %}
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            color: #ffffff;
+            background:
+                radial-gradient(circle at 20% 20%, rgba(0,255,200,0.18), transparent 55%),
+                radial-gradient(circle at 85% 10%, rgba(0,150,255,0.22), transparent 60%),
+                radial-gradient(circle at 60% 85%, rgba(0,255,180,0.15), transparent 70%),
+                radial-gradient(circle at 10% 90%, rgba(0,120,255,0.12), transparent 65%),
+                #020b14;
+            background-attachment: fixed;
+        }
+
+        .glow {
+            position: fixed;
+            width: 420px;
+            height: 420px;
+            border-radius: 50%;
+            filter: blur(140px);
+            opacity: 0.35;
+            z-index: -10;
+        }
+
+        .glow-green { background: #00ffcc; }
+        .glow-blue { background: #009dff; }
+
+        .box {
+            max-width: 900px;
+            margin: 80px auto;
+            padding: 30px;
+            border-radius: 15px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(0,255,150,0.25);
+            box-shadow: 0 0 30px rgba(0,255,150,0.15);
+            backdrop-filter: blur(8px);
+        }
+
+        h1 {
+            color: #00ff88;
+            text-shadow: 0 0 15px rgba(0,255,150,0.3);
+        }
+
+        h3 {
+            color: #00e6ff;
+            margin-top: 25px;
+        }
+
+        ul li {
+            margin-bottom: 8px;
+            color: #e8ffe8;
+        }
+
+        .btn-neon {
+            background: linear-gradient(90deg, #00c26e, #00e6ff);
+            border: none;
+            padding: 10px 25px;
+            border-radius: 40px;
+            color: #fff;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        .btn-neon:hover {
+            filter: brightness(1.1);
+        }
+
+        .muted {
+            color: #b7e7d6;
+        }
+        .lang-bar {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            z-index: 2000;
+        }
+        [dir="rtl"] .lang-bar {
+            right: auto;
+            left: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="lang-bar">
+    {% include '_lang_nav_compact.html' %}
+</div>
+
+<!-- glow -->
+<div class="glow glow-green" style="top:-80px; left:-60px;"></div>
+<div class="glow glow-blue" style="top:50px; right:-120px;"></div>
+
+<div class="box">
+
+    <h1 class="text-center">🌿 {{ treatment.name }}</h1>
+
+    <h4 class="text-center text-warning">
+        Severity: {{ treatment.severity | capitalize }}
+    </h4>
+
+    <p class="text-center muted">
+        Diagnosis Time: {{ current_time }}
+    </p>
+
+    {% if guide_source == 'ai' %}
+    <div class="alert alert-warning text-dark">
+        <strong>AI-generated IPM advisory.</strong> Field verification is required: confirm diagnosis with laboratory or expert inspection where appropriate; all pesticidal products must be selected and applied strictly per manufacturer labels, crop stage limits, and national or local regulations.
+        <div class="small mt-2"><a href="{{ request.path }}?ai=0" class="text-dark">View legacy static guide</a></div>
+    </div>
+    {% elif guide_source == 'static' %}
+    <p class="text-center small muted">
+        {% if ai_guides_available|default(false) %}
+        <a href="{{ request.path }}?ai=1" style="color:#7ee8ff;font-weight:600;">Generate professional AI treatment plan</a>
+        <span class="d-block mt-1" style="color:#b7e7d6;">Structured IPM-style recommendations; validate diagnosis, PHI/REI, and resistance management with a qualified crop advisor.</span>
+        {% else %}
+        <span>AI treatment plans are unavailable until a Groq key is set for guides (<code>GROQ_GUIDE_API_KEY</code> or <code>GROQ_API_KEY</code>).</span>
+        {% endif %}
+    </p>
+    {% endif %}
+
+    {% if treatment.symptoms %}
+    <h3>Symptoms</h3>
+    <ul>
+        {% for item in treatment.symptoms %}
+        <li>{{ item }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if treatment.immediate_actions %}
+    <h3>Immediate Actions</h3>
+    <ul>
+        {% for item in treatment.immediate_actions %}
+        <li>{{ item }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if treatment.organic_treatments %}
+    <h3>Organic Treatments</h3>
+    <ul>
+        {% for item in treatment.organic_treatments %}
+        <li>{{ item }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if treatment.chemical_treatments %}
+    <h3>Chemical Treatments</h3>
+    <ul>
+        {% for item in treatment.chemical_treatments %}
+        <li>{{ item }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if treatment.prevention %}
+    <h3>Prevention Tips</h3>
+    <ul>
+        {% for item in treatment.prevention %}
+        <li>{{ item }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <h3>Recovery Time</h3>
+    <p>{{ treatment.recovery_time }}</p>
+
+    <h3>Success Rate</h3>
+    <p>{{ treatment.success_rate }}</p>
+
+    <div class="text-center">
+        <a href="/" class="btn-neon">🏠 Back to Home</a>
+    </div>
+
+</div>
+
+{% include '_footer.html' %}
+</body>
+</html>

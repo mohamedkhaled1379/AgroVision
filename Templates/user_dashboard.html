@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}" dir="{{ 'rtl' if is_rtl else 'ltr' }}">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ t('history_page_title') }} — {{ t('brand') }}</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    {% if is_rtl %}
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>body{font-family:'Noto Sans Arabic','Segoe UI',sans-serif!important;}</style>
+    {% endif %}
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            color: #e8ffe8;
+            background:
+                radial-gradient(circle at 20% 20%, rgba(0,255,200,0.18), transparent 55%),
+                radial-gradient(circle at 85% 10%, rgba(0,150,255,0.22), transparent 60%),
+                radial-gradient(circle at 60% 85%, rgba(0,255,180,0.15), transparent 70%),
+                radial-gradient(circle at 10% 90%, rgba(0,120,255,0.12), transparent 65%),
+                #021f12;
+            background-attachment: fixed;
+        }
+
+        .glow {
+            position: fixed;
+            width: 420px;
+            height: 420px;
+            border-radius: 50%;
+            filter: blur(140px);
+            opacity: 0.35;
+            z-index: -10;
+        }
+
+        .glow-green { background: #00ffcc; }
+        .glow-blue { background: #009dff; }
+
+        .panel {
+            max-width: 1100px;
+            margin: 80px auto;
+            padding: 25px;
+            border-radius: 15px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(0,255,150,0.25);
+            box-shadow: 0 0 25px rgba(0,255,150,0.12);
+            backdrop-filter: blur(8px);
+        }
+
+        h2, h3 {
+            color: #00ff88;
+            text-shadow: 0 0 12px rgba(0,255,150,0.25);
+        }
+
+        .btn-neon {
+            background: linear-gradient(90deg, #00c26e, #00e6ff);
+            border: none;
+            padding: 8px 18px;
+            border-radius: 30px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .btn-neon:hover {
+            filter: brightness(1.1);
+        }
+
+        .btn-outline {
+            border: 1px solid rgba(0,255,150,0.4);
+            color: #e8ffe8;
+            background: transparent;
+            padding: 8px 18px;
+            border-radius: 30px;
+        }
+
+        .btn-outline:hover {
+            background: rgba(0,255,150,0.15);
+        }
+
+        .form-control {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(0,255,150,0.25);
+            color: #e8ffe8;
+        }
+
+        .form-control::placeholder {
+            color: #b7e4d9;
+        }
+
+        .table-dark-glass {
+            --bs-table-bg: rgba(255,255,255,0.03);
+            --bs-table-striped-bg: rgba(0,255,150,0.06);
+            --bs-table-color: #e8ffe8;
+            --bs-table-border-color: rgba(0,255,150,0.2);
+        }
+
+        .navbar {
+            background: rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0,255,180,0.08);
+        }
+
+        .nav-link {
+            color: #d4d4d4 !important;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #00ff88 !important;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- glow -->
+<div class="glow glow-green" style="top:-80px; left:-60px;"></div>
+<div class="glow glow-blue" style="top:50px; right:-120px;"></div>
+
+<!-- navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand text-light" href="{{ url_for('home') }}"><span class="agro-lamp"></span>{{ t('brand') }}</a>
+
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto align-items-lg-center">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('home') }}">{{ t('nav_home') }}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="{{ url_for('user_history_page') }}">{{ t('nav_history') }}</a>
+                </li>
+                {% include '_lang_switch_li.html' %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="panel">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h4 mb-0">{{ t('history_page_title') }} — {{ session.username }}</h2>
+
+        <a class="btn-neon" href="{{ url_for('change_password') }}">
+            {{ t('change_password_btn') }}
+        </a>
+    </div>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="alert alert-info py-2">{{ messages[0] }}</div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- actions -->
+    <div class="mb-3 d-flex flex-wrap gap-2">
+        <a class="btn-neon" href="{{ url_for('menu_page') }}">Menu</a>
+        <a class="btn-neon" href="{{ url_for('crop_recommend_page') }}">Crop</a>
+        <a class="btn-neon" href="{{ url_for('disease_detection') }}">Disease</a>
+        <a class="btn-neon" href="{{ url_for('indoor_plant_detection') }}">{{ t('nav_indoor_full') }}</a>
+        <a class="btn-outline" href="{{ url_for('export_user_history') }}">Export CSV</a>
+    </div>
+
+    <!-- filter -->
+    <form class="row g-2 mb-3" method="GET">
+        <div class="col-md-4">
+            <input class="form-control" name="action" placeholder="Filter action" value="{{ action_filter }}">
+        </div>
+        <div class="col-md-3">
+            <input class="form-control" type="date" name="date" value="{{ date_filter }}">
+        </div>
+        <div class="col-md-5 d-flex gap-2">
+            <button class="btn btn-success btn-sm">Apply</button>
+            <a class="btn btn-outline-light btn-sm" href="{{ url_for('user_history_page') }}">Clear</a>
+        </div>
+    </form>
+
+    <!-- table -->
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-dark-glass">
+            <thead>
+                <tr>
+                    <th>Action</th>
+                    <th>Details</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for item in history %}
+                <tr>
+                    <td>{{ item.action }}</td>
+                    <td>{{ item.details }}</td>
+                    <td>{{ item.created_at }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3">No history yet</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+
+</div>
+
+{% include '_footer.html' %}
+</body>
+</html>

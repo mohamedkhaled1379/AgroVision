@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}" dir="{{ 'rtl' if is_rtl else 'ltr' }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ t('nav_community') }} — {{ t('brand') }}</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+{% if is_rtl %}
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<style>body{font-family:'Noto Sans Arabic','DM Sans',sans-serif!important;}</style>
+{% endif %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+:root{
+    --surface:#0d1a10;
+    --panel:#101d13;
+    --border:rgba(74,222,128,0.16);
+    --accent:#4ade80;
+    --accent2:#22d3ee;
+    --text:#e5e7eb;
+    --muted:#94a3b8;
+}
+
+body{
+    color:var(--text);
+    font-family:'DM Sans',sans-serif;
+}
+
+.navbar{
+    background:rgba(8,15,10,0.85);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--border);
+}
+.navbar-brand{
+    color:var(--accent)!important;
+    font-weight:800;
+    font-family:'Syne',sans-serif;
+}
+.nav-link{ color:var(--muted)!important; }
+.nav-link:hover,.nav-link.active{ color:var(--accent)!important; }
+
+.page{
+    max-width:1200px;
+    margin:0 auto;
+    padding:28px 16px 36px;
+}
+
+.title{
+    font-family:'Syne',sans-serif;
+    font-weight:800;
+    letter-spacing:-0.02em;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+.layout{
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:16px;
+}
+
+.cardx{
+    background:rgba(13,26,16,0.88);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:16px;
+    box-shadow:0 16px 40px rgba(0,0,0,0.35);
+}
+
+.avatar,.avatar-sm{
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(135deg,#4ade80,#22d3ee);
+    color:#04130a;
+    font-weight:700;
+}
+.avatar{ width:40px;height:40px; }
+.avatar-sm{ width:28px;height:28px;font-size:12px; }
+.avatar-img{
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    object-fit:cover;
+    border:1px solid rgba(255,255,255,0.15);
+}
+.avatar-img-sm{
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    object-fit:cover;
+    border:1px solid rgba(255,255,255,0.15);
+}
+
+.post-image{
+    width:100%;
+    border-radius:12px;
+    margin-top:10px;
+    border:1px solid rgba(255,255,255,0.12);
+}
+
+.meta{
+    color:var(--muted);
+    font-size:12px;
+}
+
+.form-control,.form-select{
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.12);
+    color:#fff;
+}
+.form-control::placeholder{ color:#9ca3af; }
+
+.btn-main{
+    background:linear-gradient(135deg,#4ade80,#22d3ee);
+    border:none;
+    color:#04130a;
+    font-weight:700;
+}
+.btn-main:hover{ opacity:.92; }
+
+.reaction-row{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    padding-top:10px;
+    margin-top:10px;
+    border-top:1px solid rgba(255,255,255,0.08);
+}
+
+.comment{
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:10px;
+    padding:8px 10px;
+}
+
+.pill{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    border-radius:999px;
+    padding:4px 10px;
+    border:1px solid rgba(74,222,128,0.24);
+    background:rgba(74,222,128,0.08);
+    color:var(--accent);
+    font-size:12px;
+}
+
+@media (max-width: 992px){
+    .layout{ grid-template-columns:1fr; }
+}
+</style>
+</head>
+
+<body>
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" href="{{ url_for('home') }}"><span class="agro-lamp"></span>{{ t('brand') }}</a>
+        <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav">☰</button>
+        <div class="collapse navbar-collapse" id="nav">
+            <ul class="navbar-nav ms-auto align-items-lg-center">
+            {% set ep = request.endpoint %}
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('home') }}">{{ t('nav_home') }}</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('crop_recommend_page') }}">{{ t('nav_crop_full') }}</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('disease_detection') }}">{{ t('nav_disease_full') }}</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('indoor_plant_detection') }}">{{ t('nav_indoor_full') }}</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('chatbot_page') }}">{{ t('nav_chatbot') }}</a></li>
+                <li class="nav-item"><a class="nav-link active" href="{{ url_for('communications_page') }}">{{ t('nav_communications') }}</a></li>
+                {% if session.get('user_id') %}
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('direct_messages_page') }}">{{ t('nav_messages') }}</a></li>
+                {% endif %}
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('menu_page') }}">{{ t('nav_settings') }}</a></li>
+                {% include '_lang_switch_li.html' %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="page">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="title mb-0">Community Hub</h2>
+        <span class="pill">Live Feed</span>
+    </div>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="alert alert-warning">{{ messages[0] }}</div>
+    {% endif %}
+    {% endwith %}
+
+    <div class="layout">
+        <div>
+            <div class="cardx mb-3">
+                <h5 class="mb-3">Create Post</h5>
+                <form method="POST" action="{{ url_for('create_post') }}" enctype="multipart/form-data">
+                    <div class="d-flex gap-2 mb-2">
+                        {% if current_user_profile %}
+                        <img class="avatar-img" src="{{ url_for('static', filename='profile_uploads/' ~ current_user_profile) }}" alt="Your profile">
+                        {% else %}
+                        <div class="avatar">👤</div>
+                        {% endif %}
+                        <textarea class="form-control" name="content" placeholder="Share farming tips, questions, or updates..." rows="3"></textarea>
+                    </div>
+                    <div class="d-flex gap-2 align-items-center">
+                        <input type="file" name="image" class="form-control">
+                        <button class="btn btn-main">Post</button>
+                    </div>
+                </form>
+            </div>
+
+            {% for post in posts %}
+            <div class="cardx mb-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        {% if post.profile_image %}
+                        <img class="avatar-img" src="{{ url_for('static', filename='profile_uploads/' ~ post.profile_image) }}" alt="{{ post.username }}">
+                        {% else %}
+                        <div class="avatar">👤</div>
+                        {% endif %}
+                        <div>
+                            <div style="font-weight:600">{{ post.username }}</div>
+                            <div class="meta">{{ post.created_at }}</div>
+                        </div>
+                    </div>
+                    {% if post.user_id == session.user_id or session.role == 'admin' %}
+                    <form method="POST" action="{{ url_for('delete_post', post_id=post.id) }}">
+                        <button class="btn btn-sm btn-outline-danger">Delete</button>
+                    </form>
+                    {% endif %}
+                </div>
+
+                {% if post.content %}
+                <div class="mt-3">{{ post.content }}</div>
+                {% endif %}
+
+                {% if post.image_file %}
+                <img src="{{ url_for('static', filename='uploads/' ~ post.image_file) }}" class="post-image" alt="Post image">
+                {% endif %}
+
+                <div class="meta mt-2">
+                    👍 {{ reaction_counts_by_post.get(post.id, {}).get('like', 0) }}
+                    &nbsp; 😂 {{ reaction_counts_by_post.get(post.id, {}).get('haha', 0) }}
+                    &nbsp; 😮 {{ reaction_counts_by_post.get(post.id, {}).get('wow', 0) }}
+                    &nbsp; 😡 {{ reaction_counts_by_post.get(post.id, {}).get('angry', 0) }}
+                </div>
+
+                <div class="reaction-row">
+                    {% for r in ['like','haha','wow','angry'] %}
+                    <form method="POST" action="{{ url_for('react_post', post_id=post.id) }}">
+                        <input type="hidden" name="reaction_type" value="{{ r }}">
+                        <button class="btn btn-sm {{ 'btn-success' if user_reaction_by_post.get(post.id)==r else 'btn-outline-light' }}">{{ r }}</button>
+                    </form>
+                    {% endfor %}
+                </div>
+
+                <form method="POST" action="{{ url_for('reply_post', post_id=post.id) }}" class="d-flex gap-2 mt-3">
+                    <input class="form-control form-control-sm" name="content" placeholder="Write comment..." required>
+                    <button class="btn btn-main btn-sm">Send</button>
+                </form>
+
+                <div class="mt-3 d-grid gap-2">
+                    {% for c in replies_by_post.get(post.id,[]) %}
+                    <div class="d-flex gap-2">
+                        {% if c.profile_image %}
+                        <img class="avatar-img-sm" src="{{ url_for('static', filename='profile_uploads/' ~ c.profile_image) }}" alt="{{ c.username }}">
+                        {% else %}
+                        <div class="avatar-sm">👤</div>
+                        {% endif %}
+                        <div class="comment w-100">
+                            <div style="font-weight:600">{{ c.username }}</div>
+                            <div>{{ c.content }}</div>
+                            <div class="meta">{{ c.created_at }}</div>
+                            {% if c.user_id == session.user_id or session.role == 'admin' %}
+                            <form method="POST" action="{{ url_for('delete_comment', comment_id=c.id) }}" class="mt-1">
+                                <button class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <div class="cardx text-center">
+                <div class="meta">No posts yet. Be the first to share something.</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div>
+            <div class="cardx mb-3">
+                <h5 class="mb-2">Direct Messages</h5>
+                <p class="meta mb-2">Friend requests and all direct messages moved to a dedicated page.</p>
+                <a class="btn btn-main" href="{{ url_for('direct_messages_page') }}">Open Messages Page</a>
+            </div>
+
+            <div class="cardx mb-3">
+                <h5 class="mb-2">Community Tips</h5>
+                <ul class="meta mb-0">
+                    <li>Share real field observations and photos.</li>
+                    <li>Keep comments respectful and useful.</li>
+                    <li>Use the messages page for private chat.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% include '_footer.html' %}
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}" dir="{{ 'rtl' if is_rtl else 'ltr' }}">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>{{ t('indoor_page_title') }} — {{ t('brand') }}</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- DESIGN SYSTEM -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+{% if is_rtl %}
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<style>body{font-family:'Noto Sans Arabic','DM Sans',sans-serif!important;}</style>
+{% endif %}
+
+<style>
+:root{
+    --bg:#020b14;
+    --accent:#00ff88;
+    --accent2:#00e6ff;
+    --glass:rgba(255,255,255,0.05);
+    --border:rgba(0,255,150,0.25);
+    --text:#fff;
+    --muted:#b7e4d9;
+}
+
+body{
+    margin:0;
+    padding-top:90px;
+    font-family:'DM Sans',sans-serif;
+    color:var(--text);
+    background:
+        radial-gradient(circle at 20% 20%, rgba(0,255,200,0.18), transparent 55%),
+        radial-gradient(circle at 85% 10%, rgba(0,150,255,0.22), transparent 60%),
+        var(--bg);
+}
+
+/* NAVBAR */
+.navbar{
+    background:rgba(0,0,0,0.25);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid rgba(0,255,150,0.1);
+}
+
+.logo-text{
+    display:flex;
+    align-items:center;
+    font-family:'Syne',sans-serif;
+    font-weight:700;
+}
+
+.logo-dot{
+    width:10px;
+    height:10px;
+    background:var(--accent);
+    border-radius:50%;
+    margin-right:8px;
+    box-shadow:0 0 10px var(--accent);
+}
+
+.nav-link{
+    color:#d4d4d4 !important;
+}
+.nav-link:hover,
+.nav-link.active{
+    color:var(--accent) !important;
+}
+
+/* PANEL */
+.panel{
+    max-width:1000px;
+    margin:auto;
+    background:var(--glass);
+    border:1px solid var(--border);
+    border-radius:15px;
+    padding:30px;
+    backdrop-filter:blur(8px);
+    box-shadow:0 0 25px rgba(0,255,150,0.08);
+}
+
+.title{
+    font-family:'Syne',sans-serif;
+    color:var(--accent);
+    text-shadow:0 0 15px rgba(0,255,150,0.25);
+}
+
+.muted{
+    color:var(--muted);
+}
+
+/* GUIDE BOX */
+.guide-box{
+    margin-top:20px;
+    background:rgba(0,255,150,0.08);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:16px;
+}
+
+/* BUTTONS */
+.btn-main{
+    background:linear-gradient(90deg,#00c26e,#00e6ff);
+    border:none;
+    padding:12px 20px;
+    border-radius:40px;
+    font-weight:600;
+    color:#000;
+}
+
+.btn-outline{
+    border:1px solid var(--accent);
+    color:var(--accent);
+    padding:10px 18px;
+    border-radius:40px;
+    text-decoration:none;
+}
+.btn-outline:hover{
+    background:rgba(0,255,150,0.1);
+}
+
+.guide-photo-wrap{
+    text-align:center;
+    margin-bottom:22px;
+}
+.guide-photo-label{
+    font-size:0.85rem;
+    color:var(--accent2);
+    margin-bottom:8px;
+    font-weight:600;
+}
+.guide-image{
+    width:100%;
+    max-width:140px;
+    border-radius:14px;
+    border:1px solid rgba(0,255,150,0.35);
+    box-shadow:0 0 24px rgba(0,255,150,0.18);
+    margin:0 auto;
+    display:block;
+    object-fit:cover;
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+<div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
+
+<a class="navbar-brand logo-text mb-0" href="{{ url_for('home') }}">
+<span class="logo-dot"></span> {{ t('brand') }}
+</a>
+
+<ul class="navbar-nav ms-auto flex-row flex-wrap align-items-center gap-1 gap-lg-2">
+<li class="nav-item"><a class="nav-link" href="{{ url_for('home') }}">{{ t('nav_home') }}</a></li>
+<li class="nav-item"><a class="nav-link active" href="{{ url_for('indoor_plant_detection') }}">{{ t('nav_indoor') }}</a></li>
+<li class="nav-item"><a class="nav-link" href="{{ url_for('menu_page') }}">{{ t('nav_settings') }}</a></li>
+{% include '_lang_switch_li.html' %}
+</ul>
+
+</div>
+</nav>
+
+<!-- CONTENT -->
+<div class="container py-5">
+
+<div class="panel">
+
+<h2 class="title mb-4">{% if care_only|default(false) %}{{ t('indoor_care_guide_title') }}{% else %}{{ t('indoor_result_title') }}{% endif %}</h2>
+
+<div class="mb-3">
+<p class="muted mb-1"><b>{% if care_only|default(false) %}Plant:{% else %}Predicted Plant:{% endif %}</b> {{ predicted_plant }}</p>
+{% if confidence and confidence != '—' %}
+<p class="muted mb-0"><b>Confidence:</b> {{ confidence }}</p>
+{% endif %}
+{% set ps = predict_source|default('model') %}
+{% if ps == 'groq' %}
+<p class="text-center mt-2 mb-0"><span class="badge rounded-pill bg-info text-dark">Plant name from Groq vision API</span></p>
+{% elif ps == 'model' and confidence and confidence != '—' %}
+<p class="text-center mt-2 mb-0"><span class="badge rounded-pill bg-secondary">Plant name from local PyTorch model</span></p>
+{% elif ps == 'care_link' %}
+<p class="text-center mt-2 mb-0"><span class="badge rounded-pill bg-secondary">Care guide view</span></p>
+{% endif %}
+</div>
+
+{% if guide_source == 'ai' %}
+<div class="alert alert-info text-dark mb-3" style="border-radius:12px;">
+    <strong>AI-generated horticultural specification.</strong> Advisory only: corroborate light, irrigation, substrate, and toxicity data against species-level references, botanical garden sheets, or your nursery before changing care or assuming pet safety.
+    <div class="small mt-2"><a href="{{ url_for('indoor_plant_care', plant=predicted_plant, ai=0) }}{% if image_file %}&amp;image={{ image_file|urlencode }}{% endif %}" class="text-dark">View legacy static guide</a></div>
+</div>
+{% elif guide and guide_source == 'static' %}
+<div class="small text-center mb-3" style="color:var(--muted);">
+    {% if ai_guides_available|default(false) %}
+    <a href="{{ url_for('indoor_plant_care', plant=predicted_plant, ai=1) }}{% if image_file %}&amp;image={{ image_file|urlencode }}{% endif %}" style="color:var(--accent2);font-weight:600;">Generate professional AI care specification</a>
+    <div class="mt-1 small">Maintenance-style brief; confirm environment and toxicity for your exact taxon.</div>
+    {% else %}
+    <span>AI-reviewed care guides need a Groq key for guides (<code>GROQ_GUIDE_API_KEY</code> or <code>GROQ_API_KEY</code>).</span>
+    {% endif %}
+</div>
+{% endif %}
+
+{% if image_file and not guide %}
+<div class="guide-photo-wrap mt-3">
+    <div class="guide-photo-label">Your photo</div>
+    <img class="guide-image" src="{{ url_for('static', filename='uploads/' ~ image_file) }}" alt="{{ t('indoor_photo_alt') }}">
+</div>
+{% endif %}
+
+<!-- GUIDE -->
+{% if guide %}
+<div class="guide-box mt-4">
+
+{% if image_file %}
+<div class="guide-photo-wrap mb-3">
+    <div class="guide-photo-label">Your photo</div>
+    <img class="guide-image" src="{{ url_for('static', filename='uploads/' ~ image_file) }}" alt="{{ t('indoor_photo_alt') }}">
+</div>
+{% endif %}
+
+<h5 style="color:#00ff88;">Care Guide</h5>
+
+{% if guide is mapping %}
+<div class="row g-2">
+
+<div class="col-md-6"><b>Category:</b> {{ guide.get('category','N/A') }}</div>
+<div class="col-md-6"><b>Difficulty:</b> {{ guide.get('difficulty','N/A') }}</div>
+<div class="col-md-6"><b>Light:</b> {{ guide.get('light','N/A') }}</div>
+<div class="col-md-6"><b>Temperature:</b> {{ guide.get('temperature','N/A') }}</div>
+<div class="col-md-6"><b>Humidity:</b> {{ guide.get('humidity','N/A') }}</div>
+<div class="col-md-6"><b>Soil:</b> {{ guide.get('soil','N/A') }}</div>
+<div class="col-md-6"><b>Fertilizer:</b> {{ guide.get('fertilizer','N/A') }}</div>
+<div class="col-md-6"><b>Pet Safety:</b> {{ guide.get('pet_safety','N/A') }}</div>
+
+</div>
+
+<hr style="border-color:rgba(0,255,150,0.2)">
+
+{% set watering = guide.get('watering') %}
+{% if watering %}
+<h6>Watering</h6>
+<ul>
+<li><b>Frequency:</b> {{ watering.get('frequency') }}</li>
+<li><b>Method:</b> {{ watering.get('method') }}</li>
+<li><b>Notes:</b> {{ watering.get('notes') }}</li>
+</ul>
+{% endif %}
+
+{% set cprobs = guide.get('common_problems') %}
+{% if cprobs %}
+<h6 class="mt-3">Common problems</h6>
+<ul>{% for item in cprobs %}<li>{{ item }}</li>{% endfor %}</ul>
+{% endif %}
+
+{% set pests = guide.get('pests') %}
+{% if pests %}
+<h6 class="mt-3">Pests</h6>
+<ul>{% for item in pests %}<li>{{ item }}</li>{% endfor %}</ul>
+{% endif %}
+
+{% set tips = guide.get('care_tips') %}
+{% if tips %}
+<h6 class="mt-3">Care tips</h6>
+<ul>{% for item in tips %}<li>{{ item }}</li>{% endfor %}</ul>
+{% endif %}
+
+{% else %}
+<pre>{{ guide }}</pre>
+{% endif %}
+
+</div>
+{% elif not guide %}
+<p class="muted mt-3">No built-in care sheet for this label. Configure a Groq guide key and use <b>?ai=1</b> or <code>USE_AI_GUIDES=1</code> to generate one.</p>
+{% endif %}
+
+<!-- BUTTONS -->
+<div class="mt-4 d-flex gap-2 flex-wrap">
+
+<a href="{{ url_for('indoor_plant_detection') }}" class="btn-main">Try Again</a>
+<a href="{{ url_for('menu_page') }}" class="btn-outline">Back</a>
+
+</div>
+
+</div>
+</div>
+
+{% include '_footer.html' %}
+</body>
+</html>

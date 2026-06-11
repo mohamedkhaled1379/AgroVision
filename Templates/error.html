@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}" dir="{{ 'rtl' if is_rtl else 'ltr' }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ t('error_title') }} — {{ t('brand') }}</title>
+
+<!-- FONTS -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+{% if is_rtl %}
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<style>body{font-family:'Noto Sans Arabic','DM Sans',sans-serif!important;}</style>
+{% endif %}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+
+:root{
+    --accent:#00ff88;
+    --accent2:#00e6ff;
+    --danger:#ff4d4d;
+}
+
+/* BACKGROUND */
+body{
+    margin:0;
+    font-family:'DM Sans',sans-serif;
+    color:#fff;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(0,255,200,0.18), transparent 55%),
+        radial-gradient(circle at 85% 10%, rgba(0,150,255,0.22), transparent 60%),
+        radial-gradient(circle at 60% 85%, rgba(0,255,180,0.15), transparent 70%),
+        radial-gradient(circle at 10% 90%, rgba(0,120,255,0.12), transparent 65%),
+        #020b14;
+}
+
+/* GLOW */
+.glow{
+    position:fixed;
+    width:420px;
+    height:420px;
+    border-radius:50%;
+    filter:blur(140px);
+    opacity:0.35;
+    z-index:-10;
+}
+.glow-red{background:#ff4d4d;}
+.glow-blue{background:#009dff;}
+
+/* PAGE */
+.page{
+    max-width:600px;
+    margin:auto;
+    padding:120px 20px;
+    text-align:center;
+}
+
+/* BOX */
+.error-box{
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,80,80,0.3);
+    border-radius:18px;
+    padding:30px;
+    box-shadow:0 0 25px rgba(255,0,0,0.15);
+    backdrop-filter:blur(7px);
+}
+
+/* TITLE */
+h1{
+    font-family:'Syne',sans-serif;
+    font-weight:800;
+    color:var(--danger);
+    text-shadow:0 0 20px rgba(255,0,0,0.4);
+}
+
+/* TEXT */
+p{
+    color:#cfcfcf;
+}
+
+/* BUTTON */
+.btn-main{
+    margin-top:20px;
+    padding:12px 25px;
+    border-radius:40px;
+    background:linear-gradient(90deg,#00c26e,#00e6ff);
+    border:none;
+    color:#000;
+    font-weight:700;
+    text-decoration:none;
+    display:inline-block;
+    transition:0.3s;
+}
+
+.btn-main:hover{
+    transform:translateY(-2px);
+    box-shadow:0 0 25px rgba(0,255,200,0.5);
+}
+.lang-bar{position:fixed;top:12px;right:12px;z-index:2000;}
+[dir="rtl"] .lang-bar{right:auto;left:12px;}
+
+</style>
+</head>
+
+<body>
+
+<div class="lang-bar">{% include '_lang_nav_compact.html' %}</div>
+
+<!-- GLOW -->
+<div class="glow glow-red" style="top:-80px;left:-60px;"></div>
+<div class="glow glow-blue" style="top:50px;right:-120px;"></div>
+
+<!-- PAGE -->
+<div class="page">
+
+<div class="error-box">
+
+<h1>⚠ {{ t('error_title') }}</h1>
+
+<p>{{ error }}</p>
+
+<a href="/" class="btn-main">🏠 {{ t('error_back_home') }}</a>
+
+</div>
+
+</div>
+
+{% include '_footer.html' %}
+</body>
+</html>

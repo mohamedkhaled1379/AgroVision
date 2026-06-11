@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}" dir="{{ 'rtl' if is_rtl else 'ltr' }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ t('crop_page_title') }} — {{ t('brand') }}</title>
+
+<!-- FONTS -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+{% if is_rtl %}
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<style>body{font-family:'Noto Sans Arabic','DM Sans',sans-serif!important;}</style>
+{% endif %}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+:root {
+    --bg:#080f0a;
+    --surface:#0d1a10;
+    --border:rgba(74,222,128,0.12);
+    --accent:#4ade80;
+    --accent2:#22d3ee;
+    --text:#e5e7eb;
+    --muted:#6b7280;
+}
+
+/* BODY */
+body{
+    background:
+        linear-gradient(rgba(8,15,10,0.74), rgba(8,15,10,0.74)),
+        url("{{ url_for('static', filename='img/crop-bg.png') }}");
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    background-attachment:fixed;
+    color:var(--text);
+    font-family:'DM Sans',sans-serif;
+}
+
+/* NAVBAR */
+.navbar{
+    background:rgba(8,15,10,0.85);
+    backdrop-filter:blur(15px);
+    border-bottom:1px solid var(--border);
+}
+
+.navbar-brand{
+    font-weight:800;
+    font-family:'Syne',sans-serif;
+    color:var(--accent)!important;
+}
+
+/* GREEN DOT */
+.logo-text{
+    display:flex;
+    align-items:center;
+}
+
+/* NAV LINKS */
+.nav-link{
+    color:var(--muted)!important;
+}
+.nav-link:hover,
+.nav-link.active{
+    color:var(--accent)!important;
+}
+
+/* PAGE */
+.page{
+    max-width:700px;
+    margin:auto;
+    padding:80px 20px 40px;
+    text-align:center;
+}
+
+/* TITLE */
+.page-title{
+    font-family:'Syne',sans-serif;
+    font-size:2.4rem;
+    font-weight:800;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+/* SUBTITLE */
+.subtitle{
+    color:var(--muted);
+    margin-bottom:30px;
+}
+
+/* FORM BOX */
+.form-box{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:30px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.6);
+    text-align:left;
+}
+
+/* LABELS */
+.form-label{
+    color:var(--text);
+    font-weight:600;
+    margin-bottom:5px;
+}
+
+/* INPUTS */
+.form-control{
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.1);
+    color:#fff;
+}
+
+.form-control:focus{
+    border-color:var(--accent);
+    box-shadow:0 0 0 2px rgba(74,222,128,0.1);
+}
+
+/* BUTTON */
+.btn-main{
+    background:linear-gradient(135deg,#4ade80,#22d3ee);
+    border:none;
+    color:#000;
+    font-weight:700;
+    padding:12px 20px;
+    border-radius:12px;
+    width:100%;
+    margin-top:10px;
+}
+
+/* OUTPUT */
+.output{
+    margin-top:15px;
+    background:rgba(74,222,128,0.1);
+    padding:12px;
+    border-radius:12px;
+    color:var(--accent);
+    font-weight:600;
+    text-align:center;
+}
+
+.iot-box{
+    margin-bottom:20px;
+    padding:16px;
+    border-radius:14px;
+    border:1px dashed rgba(34,211,238,0.35);
+    background:rgba(34,211,238,0.06);
+}
+
+.iot-status{
+    font-size:0.9rem;
+    color:var(--muted);
+    margin-bottom:10px;
+}
+
+.iot-status.live{ color:var(--accent); }
+.iot-status.stale{ color:#fbbf24; }
+.iot-status.offline{ color:#f87171; }
+
+.btn-iot{
+    background:transparent;
+    border:1px solid rgba(34,211,238,0.5);
+    color:var(--accent2);
+    font-weight:600;
+    padding:10px 16px;
+    border-radius:10px;
+    width:100%;
+}
+
+.btn-iot:hover{
+    background:rgba(34,211,238,0.12);
+    color:#fff;
+}
+
+.iot-hint{
+    font-size:0.8rem;
+    color:var(--muted);
+    margin-top:10px;
+    line-height:1.4;
+}
+
+.iot-preview{
+    font-size:0.82rem;
+    color:var(--muted);
+    margin-top:10px;
+    text-align:left;
+    line-height:1.5;
+}
+
+.iot-warn{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-top:8px;
+    text-align:left;
+}
+
+.iot-read-date{
+    font-size:0.88rem;
+    color:var(--accent2);
+    margin:0 0 10px;
+    font-weight:500;
+}
+
+.iot-ip-row{
+    display:flex;
+    gap:8px;
+    margin-bottom:10px;
+}
+
+.iot-ip-row input{
+    flex:1;
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.15);
+    color:#fff;
+    border-radius:8px;
+    padding:8px 10px;
+    font-size:0.9rem;
+}
+
+.btn-iot-sm{
+    background:rgba(34,211,238,0.15);
+    border:1px solid rgba(34,211,238,0.4);
+    color:var(--accent2);
+    border-radius:8px;
+    padding:8px 12px;
+    font-weight:600;
+    white-space:nowrap;
+}
+
+.iot-links{
+    font-size:0.8rem;
+    color:var(--muted);
+    margin-top:8px;
+    text-align:left;
+    line-height:1.6;
+}
+
+.iot-links a{ color:var(--accent2); }
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg">
+<div class="container">
+
+    <a class="navbar-brand logo-text" href="{{ url_for('home') }}">
+        <span class="agro-lamp"></span>
+        {{ t('brand') }}
+    </a>
+
+    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav">
+        ☰
+    </button>
+
+    <div class="collapse navbar-collapse" id="nav">
+        <ul class="navbar-nav ms-auto align-items-lg-center">
+        {% set ep = request.endpoint %}
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('home') }}">{{ t('nav_home') }}</a></li>
+            <li class="nav-item"><a class="nav-link active" href="{{ url_for('crop_recommend_page') }}">{{ t('nav_crop_full') }}</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('disease_detection') }}">{{ t('nav_disease_full') }}</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('indoor_plant_detection') }}">{{ t('nav_indoor_full') }}</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('chatbot_page') }}">{{ t('nav_chatbot') }}</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('communications_page') }}">{{ t('nav_communications') }}</a></li>
+            {% if session.get('user_id') %}
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('direct_messages_page') }}">{{ t('nav_messages') }}</a></li>
+            {% endif %}
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('menu_page') }}">{{ t('nav_settings') }}</a></li>
+            {% include '_lang_switch_li.html' %}
+        </ul>
+    </div>
+
+</div>
+</nav>
+
+<!-- PAGE -->
+<div class="page">
+
+<h1 class="page-title">{{ t('crop_page_title') }}</h1>
+<p class="subtitle">{{ t('crop_page_sub') }}</p>
+
+<div class="form-box">
+
+{% if can_use_iot %}
+<div class="iot-box" id="iot">
+    <p id="iotStatus" class="iot-status offline">{{ t('crop_iot_status_offline') }}</p>
+    <p id="iotReadDate" class="iot-read-date" hidden></p>
+    <label class="form-label mb-1" style="font-size:0.85rem;">{{ t('crop_iot_esp_ip_label') }}</label>
+    <div class="iot-ip-row">
+        <input type="text" id="espIpInput" placeholder="192.168.1.45" inputmode="decimal" autocomplete="off">
+        <button type="button" class="btn-iot-sm" id="btnSaveEspIp">{{ t('crop_iot_save_ip') }}</button>
+    </div>
+    <div id="iotLinks" class="iot-links"></div>
+    <button type="button" class="btn-iot mt-2" id="btnLoadIot">{{ t('crop_iot_load') }}</button>
+    <p class="iot-hint">{{ t('crop_iot_hint') }}</p>
+    <div id="iotPreview" class="iot-preview" hidden></div>
+    <div id="iotWarn" class="iot-warn" hidden></div>
+</div>
+{% endif %}
+
+<form method="POST" action="/crop-predict" id="cropForm">
+
+<div class="mb-3">
+    <label class="form-label">Nitrogen (N)</label>
+    <input type="number" step="any" class="form-control" name="nitrogen" id="nitrogen" required>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">Phosphorus (P)</label>
+    <input type="number" step="any" class="form-control" name="phosphorus" id="phosphorus" required>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">Potassium (K)</label>
+    <input type="number" step="any" class="form-control" name="potassium" id="potassium" required>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">Temperature (°C)</label>
+    <input type="number" step="any" class="form-control" name="temperature" id="temperature" required>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">Humidity (%)</label>
+    <input type="number" step="any" class="form-control" name="humidity" id="humidity" required>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">Rainfall (mm)</label>
+    <input type="number" step="any" class="form-control" name="rainfall" id="rainfall" required>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">pH Level</label>
+    <input type="number" step="any" class="form-control" name="ph" id="ph" required>
+</div>
+
+<button class="btn-main">{{ t('crop_btn') }}</button>
+
+</form>
+
+<!-- OUTPUT -->
+{% if prediction %}
+<div class="output">
+Recommended Crop: {{ prediction }}
+</div>
+
+<a href="/guide/{{ prediction }}" class="btn-main d-inline-block mt-2">
+{{ t('crop_view_guide') }}
+</a>
+{% endif %}
+
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% if can_use_iot %}
+<script>
+(function () {
+  const statusEl = document.getElementById("iotStatus");
+  const btn = document.getElementById("btnLoadIot");
+  const readDateEl = document.getElementById("iotReadDate");
+  const labels = {
+    live: {{ t('crop_iot_status_live')|tojson }},
+    stale: {{ t('crop_iot_status_stale')|tojson }},
+    offline: {{ t('crop_iot_status_offline')|tojson }},
+    loaded: {{ t('crop_iot_loaded')|tojson }},
+    error: {{ t('crop_iot_error')|tojson }},
+    readDate: {{ t('crop_iot_read_date')|tojson }},
+    secondsAgo: {{ t('crop_iot_seconds_ago')|tojson }}
+  };
+
+  function formatReadDate(iso) {
+    if (!iso) return "";
+    const d = new Date(iso);
+    return isNaN(d.getTime()) ? iso : d.toLocaleString();
+  }
+
+  function showReadDate(data) {
+    if (!data || !data.read_at) {
+      readDateEl.hidden = true;
+      return;
+    }
+    let text = labels.readDate + ": " + formatReadDate(data.read_at);
+    if (data.age_seconds != null) {
+      text += " (" + Math.round(data.age_seconds) + " " + labels.secondsAgo + ")";
+    }
+    readDateEl.textContent = text;
+    readDateEl.hidden = false;
+  }
+
+  function setStatus(kind, text) {
+    statusEl.className = "iot-status " + kind;
+    statusEl.textContent = text;
+  }
+
+  const previewEl = document.getElementById("iotPreview");
+  const warnEl = document.getElementById("iotWarn");
+  const espIpInput = document.getElementById("espIpInput");
+  const iotLinksEl = document.getElementById("iotLinks");
+  const btnSaveEspIp = document.getElementById("btnSaveEspIp");
+
+  function getEspIp() {
+    return (espIpInput.value || localStorage.getItem("esp32_ip") || "").trim();
+  }
+
+  const PC_IP = {{ pc_ip|tojson }};
+  const txtWebsite = {{ t('crop_iot_link_website')|tojson }};
+  const txtSensors = {{ t('crop_iot_link_sensors')|tojson }};
+  const txtIpHelp = {{ t('crop_iot_ip_help')|tojson }};
+
+  function isPcIp(ip) {
+    return ip === PC_IP || ip === "127.0.0.1" || ip === "localhost";
+  }
+
+  function updateLinks(cfg) {
+    const candidate = cfg.esp_ip || getEspIp();
+    const ip = candidate && !isPcIp(candidate) ? candidate : "";
+    const site = cfg.website_url || ("http://" + PC_IP + ":5000");
+    let html = txtWebsite + ': <a href="' + site + '">' + site + '</a>';
+    if (ip) {
+      const sensors = "http://" + ip + "/sensors";
+      html += "<br>" + txtSensors + ': <a href="' + sensors + '" target="_blank">' + sensors + "</a>";
+    } else {
+      html += '<br><span style="color:#fbbf24">' + txtIpHelp + "</span>";
+    }
+    iotLinksEl.innerHTML = html;
+  }
+
+  async function loadConfig() {
+    try {
+      const res = await fetch("/api/iot/config");
+      const cfg = await res.json();
+      if (cfg.esp_ip) {
+        espIpInput.value = cfg.esp_ip;
+        localStorage.setItem("esp32_ip", cfg.esp_ip);
+        setStatus("live", "Success: ESP32 IP detected automatically (" + cfg.esp_ip + ")");
+      } else if (localStorage.getItem("esp32_ip")) {
+        const saved = localStorage.getItem("esp32_ip");
+        if (saved && !isPcIp(saved)) {
+          espIpInput.value = saved;
+        } else {
+          localStorage.removeItem("esp32_ip");
+        }
+      }
+      updateLinks(cfg);
+    } catch (e) {
+      updateLinks({ website_url: window.location.origin });
+    }
+  }
+
+  btnSaveEspIp.addEventListener("click", async function () {
+    const ip = getEspIp();
+    if (!ip || !/^\d{1,3}(\.\d{1,3}){3}$/.test(ip)) {
+      alert("Enter a valid IP like 192.168.1.45 (numbers only)");
+      return;
+    }
+    if (isPcIp(ip)) {
+      alert("WRONG: " + ip + " is your PC.\n\nOpen Arduino Serial Monitor (115200) and copy the line:\nESP32 IP: 192.168.1.XX\n\nThat XX is different from " + PC_IP);
+      return;
+    }
+    const res = await fetch("/api/iot/config", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ esp_ip: ip })
+    });
+    const data = await res.json();
+    if (!data.ok) {
+      alert(data.error || "Could not save IP");
+      return;
+    }
+    localStorage.setItem("esp32_ip", ip);
+    updateLinks({ esp_ip: ip, website_url: "http://" + PC_IP + ":5000" });
+    setStatus("live", "ESP32 IP saved: " + ip);
+  });
+
+  function showPreview(data) {
+    const r = data.raw || data;
+    if (!r || r.temperature == null) {
+      previewEl.hidden = true;
+      return;
+    }
+    const lines = [
+      "Temp: " + r.temperature + "°C | Hum: " + r.humidity + "%",
+      "Soil humidity: " + (r.soil_moisture != null ? r.soil_moisture : "—") + "%",
+      "Rain: " + r.rainfall + " mm | pH: " + r.ph,
+      "NPK: " + r.nitrogen + "-" + r.phosphorus + "-" + r.potassium
+    ];
+    previewEl.textContent = lines.join("\n");
+    previewEl.hidden = false;
+  }
+
+  function showWarnings(data) {
+    if (!data.warnings || !data.warnings.length) {
+      warnEl.hidden = true;
+      return;
+    }
+    warnEl.textContent = data.warnings.join(" ");
+    warnEl.hidden = false;
+  }
+
+  function fillForm(data) {
+    const r = data.raw || data;
+    ["nitrogen", "phosphorus", "potassium", "temperature", "humidity", "rainfall", "ph"].forEach(function (id) {
+      const el = document.getElementById(id);
+      const val = r[id];
+      if (el && val !== null && val !== undefined && !Number.isNaN(Number(val))) {
+        el.value = val;
+      }
+    });
+  }
+
+  let lastGoodData = null;
+
+  function applyData(data) {
+    lastGoodData = data;
+    showReadDate(data);
+    showPreview(data);
+    showWarnings(data);
+    fillForm(data);
+    if (data.source === "esp_live") {
+      setStatus("live", labels.loaded);
+    } else if (data.sync_error) {
+      setStatus("stale", data.sync_error);
+    } else if (data.stale) {
+      setStatus("stale", labels.stale);
+    } else {
+      setStatus("live", labels.loaded);
+    }
+  }
+
+  async function refreshStatus() {
+    try {
+      const res = await fetch("/api/iot/latest");
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const data = await res.json();
+      if (!data.ok) {
+        setStatus("offline", data.message || labels.offline);
+        readDateEl.hidden = true;
+        previewEl.hidden = true;
+        warnEl.textContent = "";
+        warnEl.hidden = true;
+        return;
+      }
+      showReadDate(data);
+      if (data.stale || (data.age_seconds != null && data.age_seconds > 120)) {
+        previewEl.hidden = true;
+        warnEl.textContent = "Old saved data — not live. Enter ESP32 IP, click Save IP, then Load.";
+        warnEl.hidden = false;
+        setStatus("stale", "Old data (" + Math.round((data.age_seconds || 0) / 60) + " min ago). Click Load for live ESP32.");
+        return;
+      }
+      lastGoodData = data;
+      showPreview(data);
+      warnEl.hidden = true;
+      setStatus("live", labels.live);
+    } catch (e) {
+      setStatus("offline", labels.offline + " — run .\\run_agro.ps1 first");
+      previewEl.hidden = true;
+    }
+  }
+
+  async function loadFromEsp() {
+    const ip = getEspIp();
+    if (!ip || !/^\d{1,3}(\.\d{1,3}){3}$/.test(ip)) {
+      alert("Enter ESP32 IP from Serial Monitor (e.g. 192.168.1.45), then click Save IP.");
+      return;
+    }
+    if (isPcIp(ip)) {
+      alert("WRONG: " + ip + " is your PC, not the ESP32.\nUse the IP from Serial Monitor (different number).");
+      return;
+    }
+    btn.disabled = true;
+    setStatus("live", "Loading live from ESP32 at " + ip + "...");
+    warnEl.hidden = true;
+    try {
+      const url = "/api/iot/load?esp_ip=" + encodeURIComponent(ip);
+      const res = await fetch(url, { method: "GET", cache: "no-store" });
+      let data;
+      try {
+        data = await res.json();
+      } catch (parseErr) {
+        throw new Error("Server returned non-JSON (is run_agro.ps1 running?)");
+      }
+      if (!data.ok) {
+        setStatus("offline", data.message || data.sync_error || labels.offline);
+        if (data.sync_error) {
+          warnEl.textContent = data.sync_error;
+          warnEl.hidden = false;
+        }
+        return;
+      }
+      applyData(data);
+      if (data.sync_error) {
+        warnEl.textContent = data.sync_error + " (showing last saved values)";
+        warnEl.hidden = false;
+        setStatus("stale", data.sync_error);
+      }
+    } catch (e) {
+      setStatus("offline", labels.error + " — " + (e.message || "start run_agro.ps1"));
+      previewEl.hidden = true;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  btn.addEventListener("click", loadFromEsp);
+  loadConfig().then(refreshStatus);
+})();
+</script>
+{% endif %}
+{% include '_footer.html' %}
+</body>
+</html>

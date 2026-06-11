@@ -1,0 +1,6 @@
+<li>
+  <a href="{{ url_for('set_language', lang_code=('en' if current_lang == 'ar' else 'ar'), next=request.full_path) }}"
+     style="border:1px solid rgba(255,255,255,0.2);padding:4px 10px;border-radius:8px;">
+    {% if current_lang == 'ar' %}{{ t('lang_switch_to_en') }}{% else %}{{ t('lang_switch_to_ar') }}{% endif %}
+  </a>
+</li>

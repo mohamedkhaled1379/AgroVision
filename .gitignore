@@ -1,0 +1,51 @@
+# Python virtual environments (NEVER commit — too large for GitHub)
+.venv/
+venv/
+agro_env/
+env/
+
+# Secrets and local config
+.env
+*.env.local
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Logs and local data
+logs/
+*.log
+
+# User uploads (keep folder via .gitkeep if needed)
+static/uploads/*
+!static/uploads/.gitkeep
+static/profile_uploads/*
+!static/profile_uploads/.gitkeep
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# ML model files (large — use Git LFS or download separately)
+# Uncomment if models are too big to push:
+# *.h5
+# *.pkl
+# *.pth
+
+# Cursor / agent
+.cursor/
