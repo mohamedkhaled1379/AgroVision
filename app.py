@@ -4,7 +4,6 @@
 import os
 import json
 import urllib.request
-import cv2
 import numpy as np
 import pandas as pd
 import joblib
@@ -34,14 +33,9 @@ from urllib.parse import urlparse
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from tensorflow.keras.models import load_model
-
-# PyTorch
-import torch
-import torch.nn as nn
-import torchvision.transforms as transforms
-from torchvision import models
 from PIL import Image
+
+# TensorFlow, PyTorch, and OpenCV are imported lazily for faster Railway boot.
 
 # Chatbot
 from groq import Groq
@@ -670,6 +664,7 @@ def build_crop_feature_frame(raw_form: dict) -> tuple[pd.DataFrame, list[str]]:
 
 
 def predict_crop_with_confidence(raw_form: dict) -> dict:
+    crop_model, scaler, label_encoder = _ensure_crop_models()
     features, warnings = build_crop_feature_frame(raw_form)
     scaled = scaler.transform(features)
     encoded = int(crop_model.predict(scaled)[0])
@@ -1000,7 +995,11 @@ guide_client = Groq(api_key=GROQ_GUIDE_API_KEY) if GROQ_GUIDE_API_KEY else clien
 # =========================================================
 disease_model = None
 indoor_model = None
-indoor_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+indoor_device = None
+crop_model = None
+scaler = None
+label_encoder = None
+_torch_transform = None
 
 # =========================================================
 # DISEASE CLASS NAMES
@@ -1078,23 +1077,67 @@ INDOOR_CLASS_LABELS = list(INDOOR_LABELS.values())
 # =========================================================
 # LOAD MODELS
 # =========================================================
+def _get_indoor_device():
+    global indoor_device
+    if indoor_device is None:
+        import torch
+        indoor_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    return indoor_device
+
+
+def _get_torch_transform():
+    global _torch_transform
+    if _torch_transform is None:
+        import torchvision.transforms as transforms
+        _torch_transform = transforms.Compose([
+            transforms.Resize((224, 224)),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                 std=[0.229, 0.224, 0.225]),
+        ])
+    return _torch_transform
+
+
+def _ensure_crop_models():
+    global crop_model, scaler, label_encoder
+    if crop_model is None:
+        crop_model = joblib.load("crop_recommender_xgb.pkl")
+        scaler = joblib.load("scaler.pkl")
+        label_encoder = joblib.load("label_encoder.pkl")
+    return crop_model, scaler, label_encoder
+
+
+def warm_up_models() -> None:
+    """Load ML models once per gunicorn worker."""
+    if os.getenv("DISABLE_CROP_MODEL", "").lower() not in ("1", "true", "yes"):
+        _ensure_crop_models()
+        app.logger.info("Crop recommendation model loaded.")
+    if os.getenv("DISABLE_DISEASE_MODEL", "").lower() not in ("1", "true", "yes"):
+        load_disease_model()
+    if os.getenv("DISABLE_INDOOR_MODEL", "").lower() not in ("1", "true", "yes"):
+        load_indoor_model()
+
+
 def load_disease_model() -> bool:
     global disease_model
     try:
+        from tensorflow.keras.models import load_model as keras_load_model
         model_path = "my_keras_model.h5"
         if not os.path.exists(model_path):
-            print(f"Disease model not found: {os.path.abspath(model_path)}")
+            app.logger.warning("Disease model not found: %s", os.path.abspath(model_path))
             return False
-        disease_model = load_model(model_path)
-        print("Disease model loaded.")
+        disease_model = keras_load_model(model_path)
+        app.logger.info("Disease model loaded.")
         return True
     except Exception as e:
-        print("Disease model load error:", e)
-        print(traceback.format_exc())
+        app.logger.error("Disease model load error: %s", e)
+        app.logger.error(traceback.format_exc())
         return False
 
 
 def build_indoor_model(num_classes: int = 47):
+    import torch.nn as nn
+    from torchvision import models
     model = models.efficientnet_b0(weights=None)
     in_features = model.classifier[1].in_features
     model.classifier[1] = nn.Linear(in_features, num_classes)
@@ -1104,31 +1147,32 @@ def build_indoor_model(num_classes: int = 47):
 def load_indoor_model() -> bool:
     global indoor_model
     try:
+        import torch
         candidate_paths = [
             os.getenv("INDOOR_MODEL_PATH", "").strip(),
             os.path.join(os.getcwd(), "plant_model.pth"),
-            r"D:\Agro_vision_ai\plant_model.pth",
         ]
         model_path = next((p for p in candidate_paths if p and os.path.exists(p)), None)
-        print("Indoor model candidates:", [p for p in candidate_paths if p])
+        app.logger.info("Indoor model candidates: %s", [p for p in candidate_paths if p])
 
         if not model_path:
-            print("Indoor plant model NOT FOUND. Checked:", [p for p in candidate_paths if p])
+            app.logger.warning("Indoor plant model NOT FOUND.")
             indoor_model = None
             return False
 
-        state = torch.load(model_path, map_location=indoor_device)
+        device = _get_indoor_device()
+        state = torch.load(model_path, map_location=device)
         model = build_indoor_model(num_classes=47)
         model.load_state_dict(state)
-        model.to(indoor_device).eval()
+        model.to(device).eval()
 
         indoor_model = model
-        print(f"Indoor plant model loaded from: {model_path} | Device: {indoor_device}")
+        app.logger.info("Indoor plant model loaded from: %s", model_path)
         return True
 
     except Exception as e:
-        print("Indoor plant model load error:", e)
-        print(traceback.format_exc())
+        app.logger.error("Indoor plant model load error: %s", e)
+        app.logger.error(traceback.format_exc())
         indoor_model = None
         return False
 
@@ -1140,6 +1184,7 @@ def allowed_file(filename: str) -> bool:
 
 
 def preprocess_keras_image(image_path: str, size=(224, 224)) -> np.ndarray:
+    import cv2
     image = cv2.imread(image_path)
     if image is None:
         raise ValueError("Could not read image file")
@@ -1161,13 +1206,6 @@ def get_float_form_value(field_name: str, default: float = 0.0) -> float:
 
     return float(value)
 
-
-TORCH_TRANSFORM = transforms.Compose([
-    transforms.Resize((224, 224)),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                         std=[0.229, 0.224, 0.225]),
-])
 
 # =========================================================
 # DISEASE PREDICTION
@@ -1229,11 +1267,13 @@ def _use_groq_indoor_vision_first() -> bool:
 
 def _predict_indoor_plant_pytorch(image_path: str):
     try:
+        import torch
         if indoor_model is None:
             return None, "Indoor plant model not loaded"
 
+        device = _get_indoor_device()
         img = Image.open(image_path).convert("RGB")
-        x = TORCH_TRANSFORM(img).unsqueeze(0).to(indoor_device)
+        x = _get_torch_transform()(img).unsqueeze(0).to(device)
 
         with torch.no_grad():
             outputs = indoor_model(x)
@@ -1276,13 +1316,6 @@ def predict_indoor_plant(image_path: str):
     result["guide"] = INDOOR_PLANT_GUIDE.get(result["predicted_plant"])
     result["predict_source"] = "model"
     return result, None
-
-# =========================================================
-# CROP RECOMMENDATION MODEL
-# =========================================================
-crop_model = joblib.load("crop_recommender_xgb.pkl")
-scaler = joblib.load("scaler.pkl")
-label_encoder = joblib.load("label_encoder.pkl")
 
 # =========================================================
 # ROUTES
@@ -3011,6 +3044,7 @@ def crop_recommend_page():
 @app.route("/crop-predict", methods=["POST"])
 def crop_predict():
     try:
+        crop_model, scaler, label_encoder = _ensure_crop_models()
         print("DEBUG request.form:", request.form)
 
         raw_form = {
@@ -3467,6 +3501,7 @@ def mobile_indoor_detect():
 @app.route("/api/mobile/crop-predict", methods=["POST"])
 def mobile_crop_predict():
     try:
+        crop_model, scaler, label_encoder = _ensure_crop_models()
         data = request.get_json(silent=True) or {}
         raw_form = {
             "nitrogen": float(data.get("nitrogen", 0)),
@@ -3537,14 +3572,24 @@ def mobile_indoor_plants_list():
     return jsonify({"ok": True, "plants": plants})
 
 
+@app.route("/health/live")
+def health_live():
+    return jsonify({"status": "ok"}), 200
+
+
 @app.route("/health")
 def health_check():
-    row = get_latest_iot_reading()
+    row = None
+    try:
+        row = get_latest_iot_reading()
+    except Exception:
+        pass
     return jsonify({
         "status": "ok",
         "disease_model_loaded": disease_model is not None,
         "indoor_model_loaded": indoor_model is not None,
-        "device": str(indoor_device),
+        "crop_model_loaded": crop_model is not None,
+        "device": str(indoor_device) if indoor_device is not None else "cpu",
         "iot_esp_ip": IOT_ESP_IP or get_iot_esp_ip(),
         "iot_has_reading": row is not None,
         "iot_last_read_at": row["created_at"] if row else None,
@@ -3604,18 +3649,7 @@ if __name__ == "__main__":
     print("Current directory:", os.getcwd())
     init_db()
     setup_logging()
-
-    if load_disease_model():
-        print("Disease module ready.")
-    else:
-        print("Disease model not loaded.")
-
-    if load_indoor_model():
-        print("Indoor plant module ready.")
-    else:
-        print("Indoor plant model not loaded. Check path: D:\\Agro_vision_ai\\plant_model.pth")
-
-    print("Crop recommendation model loaded.")
+    warm_up_models()
     print(f"Database backend: {'Microsoft SQL Server' if is_mssql() else 'SQLite'}")
     print("App ready: http://localhost:5000")
     app.run(debug=not IS_PRODUCTION, host="0.0.0.0", port=int(os.getenv("PORT", "5000")))
