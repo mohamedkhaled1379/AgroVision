@@ -3,6 +3,7 @@ werkzeug
 numpy
 pandas
 joblib
+xgboost
 opencv-python-headless
 tensorflow
 torch
